@@ -22,4 +22,5 @@ void setup()
 void loop() 
 {
     keyboard.update();
+    digitalWrite(ledPin, HIGH);
 }
