@@ -20,7 +20,7 @@ namespace Z
         static const uint8_t COL_PINS[];
         static const uint8_t COL_AMOUNT;
 
-        static const int KEYMAP[6][4];
+        static const int KEYMAP[6][15];
         
         //The delay between setting the row HIGH and reading the value
         //in microseconds

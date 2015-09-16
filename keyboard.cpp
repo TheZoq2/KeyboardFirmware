@@ -1,11 +1,11 @@
 #include "keyboard.h"
 
 //The pins that the rows are connected to
-const uint8_t Z::Board::ROW_PINS[] = {5, 4, 3, 0, 1, 2};
+const uint8_t Z::Board::ROW_PINS[] = {3, 4, 5, 6, 1, 2};
 const uint8_t Z::Board::ROW_AMOUNT = 6;
 
-const uint8_t Z::Board::COL_PINS[] = {22, 23, 21, 20};
-const uint8_t Z::Board::COL_AMOUNT = 4;
+const uint8_t Z::Board::COL_PINS[] = {10, 11, 12, 19, 14, 15, 16, 17, 18, 20, 21, 22, 23, 9};
+const uint8_t Z::Board::COL_AMOUNT = 15;
 
 const int Z::Board::READ_DELAY = 5;
 
@@ -19,12 +19,12 @@ const int KEY_FN = -100;
 //REMEMBER TO CHANGE THE SIZE OF THIS IN THE DECLARATION ASWELL
 const int Z::Board::KEYMAP[Z::Board::ROW_AMOUNT][Z::Board::COL_AMOUNT] = 
     {
-        {KEY_ESC, KEY_F1, KEY_F2, KEY_F3},
-        {KEY_TILDE, KEY_1, KEY_2, KEY_3},
-        {KEY_TAB, KEY_Q, KEY_W, KEY_E},
-        {KEY_CAPS_LOCK, KEY_A, KEY_S, KEY_D},
-        {KEY_SHIFT, KEYPAD_ASTERIX, KEY_Z, KEY_X},
-        {KEY_CTRL, KEY_FN, KEY_GUI, KEY_ALT},
+        {KEY_ESC, KEY_F1, KEY_F2, KEY_F3, KEY_F4, KEY_F5, KEY_F6, KEY_F7, KEY_F8, KEY_F9, KEY_F10, KEY_F12, KEY_DELETE},
+        {KEY_TILDE, KEY_1, KEY_2, KEY_3, KEY_4, KEY_5, KEY_6, KEY_7, KEY_8, KEY_9, KEY_0, KEY_MINUS, KEY_EQUAL, KEY_BACKSPACE},
+        {KEY_TAB, KEY_Q, KEY_W, KEY_E, KEY_R, KEY_T, KEY_Y, KEY_U, KEY_I, KEY_O, KEY_P, KEY_LEFT_BRACE, KEY_RIGHT_BRACE, KEY_BACKSLASH},
+        {KEY_CAPS_LOCK, KEY_A, KEY_S, KEY_D, KEY_F, KEY_G, KEY_H, KEY_J, KEY_K, KEY_L, KEY_SEMICOLON, KEY_QUOTE, KEY_ENTER},
+        {KEY_SHIFT, KEYPAD_ASTERIX, KEY_Z, KEY_X, KEY_C, KEY_V, KEY_B, KEY_N, KEY_M, KEY_COMMA, KEY_PERIOD, KEY_SLASH, KEY_SHIFT, KEY_HOME},
+        {KEY_CTRL, KEY_FN, KEY_GUI, KEY_ALT, 0, 0, KEY_SPACE, 0, 0, KEY_ALT, KEY_FN, KEY_GUI, KEY_CTRL, KEY_END},
     };
 
 void Z::Board::setup()
@@ -76,7 +76,11 @@ void Z::Board::update()
                     //Increment the amount of pressed keys
                     pressedAmount++;
 
-                    Serial.println("Got regular key");
+                    Serial.print("Key pressed: ");
+                    Serial.print(i);
+                    Serial.print(", ");
+                    Serial.println(n);
+
                 }
                 else
                 {
