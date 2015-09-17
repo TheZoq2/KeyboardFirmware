@@ -19,16 +19,28 @@ const int KEY_FN = -100;
 //REMEMBER TO CHANGE THE SIZE OF THIS IN THE DECLARATION ASWELL
 const int Z::Board::KEYMAP[Z::Board::ROW_AMOUNT][Z::Board::COL_AMOUNT] = 
     {
-        {KEY_ESC, KEY_F1, KEY_F2, KEY_F3, KEY_F4, KEY_F5, KEY_F6, KEY_F7, KEY_F8, KEY_F9, KEY_F10, KEY_F12, KEY_DELETE},
+        {KEY_ESC, KEY_F1, KEY_F2, KEY_F3, KEY_F4, KEY_F5, KEY_F6, KEY_F7, KEY_F8, KEY_F9, KEY_F10, KEY_F11, KEY_F12, KEY_DELETE},
         {KEY_TILDE, KEY_1, KEY_2, KEY_3, KEY_4, KEY_5, KEY_6, KEY_7, KEY_8, KEY_9, KEY_0, KEY_MINUS, KEY_EQUAL, KEY_BACKSPACE},
         {KEY_TAB, KEY_Q, KEY_W, KEY_E, KEY_R, KEY_T, KEY_Y, KEY_U, KEY_I, KEY_O, KEY_P, KEY_LEFT_BRACE, KEY_RIGHT_BRACE, KEY_BACKSLASH},
-        {KEY_CAPS_LOCK, KEY_A, KEY_S, KEY_D, KEY_F, KEY_G, KEY_H, KEY_J, KEY_K, KEY_L, KEY_SEMICOLON, KEY_QUOTE, KEY_ENTER},
+        {KEY_CAPS_LOCK, KEY_A, KEY_S, KEY_D, KEY_F, KEY_G, KEY_H, KEY_J, KEY_K, KEY_L, KEY_SEMICOLON, KEY_QUOTE, 0, KEY_ENTER},
         {KEY_SHIFT, KEYPAD_ASTERIX, KEY_Z, KEY_X, KEY_C, KEY_V, KEY_B, KEY_N, KEY_M, KEY_COMMA, KEY_PERIOD, KEY_SLASH, KEY_SHIFT, KEY_HOME},
         {KEY_CTRL, KEY_FN, KEY_GUI, KEY_ALT, 0, 0, KEY_SPACE, 0, 0, KEY_ALT, KEY_FN, KEY_GUI, KEY_CTRL, KEY_END},
     };
 
+int Z::Board::FN_AMOUNT = 4;
+int Z::Board::FN_KEYS[] = {KEY_K, KEY_J, KEY_H, KEY_L};
+int Z::Board::FN_VALUES[] = {KEY_UP, KEY_DOWN, KEY_LEFT, KEY_RIGHT};
+Z::Map<int, int> Z::Board::FN_MAP(Z::Board::FN_KEYS, Z::Board::FN_VALUES, FN_AMOUNT);
+
 void Z::Board::setup()
 {
+    //Alternative mappings for when the FN key is pressed
+    //Z::Board::FN_MAP[KEY_K] = KEY_UP;
+    //Z::Board::FN_MAP[KEY_J] = KEY_DOWN;
+    //Z::Board::FN_MAP[KEY_H] = KEY_LEFT;
+    //Z::Board::FN_MAP[KEY_L] = KEY_RIGHT;
+    //
+
     //Setup all rows as ouptus
     for(uint8_t i = 0; i < ROW_AMOUNT; i++)
     {
@@ -49,6 +61,8 @@ void Z::Board::update()
     //Reset the pressed key list
     pressedAmount = 0;
     currentModifier = 0;
+
+    bool fnPressed = false;
 
     //Loop through the rows turning them on one by one
     for(uint8_t i = 0; i < ROW_AMOUNT; ++i)
@@ -75,12 +89,10 @@ void Z::Board::update()
 
                     //Increment the amount of pressed keys
                     pressedAmount++;
-
-                    Serial.print("Key pressed: ");
-                    Serial.print(i);
-                    Serial.print(", ");
-                    Serial.println(n);
-
+                }
+                else if(keyCode == KEY_FN)
+                {
+                    fnPressed = true;
                 }
                 else
                 {
@@ -92,6 +104,20 @@ void Z::Board::update()
         digitalWrite(ROW_PINS[i], HIGH); //Reset the pin;
     }
 
+    //If the FN key was pressed, we need to remap those keystrokes.
+    if(fnPressed)
+    {
+        for(int i = 0; i < pressedAmount; i++)
+        {
+            int* fnAlternative = FN_MAP.getValue(pressedKeys[i]);
+            if(fnAlternative != NULL)
+            {
+                pressedKeys[i] = *fnAlternative;
+            }
+        }
+    }
+
+    Serial.println(KEY_H);
     updateSentKeys();
     sendKeys();
 }

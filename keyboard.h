@@ -4,6 +4,7 @@
 #include <Arduino.h>
 
 #include <stdint.h>
+#include "map.h"
         
 namespace Z
 {
@@ -21,6 +22,11 @@ namespace Z
         static const uint8_t COL_AMOUNT;
 
         static const int KEYMAP[6][15];
+
+        static int FN_AMOUNT;
+        static int FN_KEYS[];
+        static int FN_VALUES[];
+        static Map<int, int> FN_MAP;
         
         //The delay between setting the row HIGH and reading the value
         //in microseconds
