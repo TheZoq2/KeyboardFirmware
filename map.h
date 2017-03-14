@@ -9,7 +9,7 @@ namespace Z
     class Map
     {
     public:
-        Map(T_KEY* keys, T_VAL* values, int amount)
+        Map(T_KEY* keys, T_VAL* values, uint16_t amount)
         {
             this->keys = keys;
             this->values = values;
@@ -26,10 +26,10 @@ namespace Z
                     return &values[i];
                 }
             }
-            return NULL;
+            return nullptr;
         }
     private:
-        int amount;
+        uint16_t amount;
     
         T_KEY* keys;
         T_VAL* values;

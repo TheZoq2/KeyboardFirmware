@@ -5,19 +5,19 @@
 
 #include <stdint.h>
 #include "map.h"
-        
+
 namespace Z
 {
     class Board
     {
     public:
         void setup();
-    
+
         void update();
     private:
         static const uint8_t ROW_PINS[];
         static const uint8_t ROW_AMOUNT;
-    
+
         static const uint8_t COL_PINS[];
         static const uint8_t COL_AMOUNT;
 
@@ -26,7 +26,7 @@ namespace Z
         static const int FN_AMOUNT;
         static const uint8_t FN_KEYS[];
         static const uint8_t FN_VALUES[];
-        
+
         //The delay between setting the row HIGH and reading the value
         //in microseconds
         static const int READ_DELAY; 
@@ -37,13 +37,13 @@ namespace Z
         //The minimum amount of time between two keypresses of the same key
         //in loop iterations
         static const int16_t RECENT_KEY_COOLDOWN;
-        
+
         ////////////////////////////////////////
         void updateSentKeys();
         void sendKeys();
         void handleModifier(int keyCode);
         int translateFN(int keycode);
-        
+
         bool isKeyRecent(int keycode);
         void addRecentKey(int keycode);
         void updateRecentKeys();
@@ -57,7 +57,7 @@ namespace Z
         uint8_t recentKeys[MAX_PRESSED_KEYS];
         int16_t recentKeyTimes[MAX_PRESSED_KEYS];
         uint8_t recentKeyAmount;
-        
+
         uint8_t currentModifier;
     };
 };
