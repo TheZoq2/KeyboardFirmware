@@ -10,7 +10,7 @@
     #include <iostream>
     //Printing error messages
     #define DEBUG_PRINTLN(msg) std::cout << msg << std::endl
-    #define DEBUG_PRINT(msg) std::cout << msg << std::endl
+    #define DEBUG_PRINT(msg) std::cout << msg
 #endif
 
 

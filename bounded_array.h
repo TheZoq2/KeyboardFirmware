@@ -3,19 +3,32 @@
 
 #include "debug.h"
 
-
 /*
   Stack allocated array containing a fixed amount of elements.
 */
-template <typename T, std::size_t LENGTH>
+template <typename T, std::size_t MAX_LENGTH>
 class BoundedArray
 {
     public:
-        BoundedArray();
+        BoundedArray(){}
 
-        const T& operator[](std::size_t index)
+        /**
+          Appends a single element to the end of the currently stored array
+        */
+        void push(T element)
         {
-            if(index < current_capacity)
+            if(this->length >= MAX_LENGTH)
+            {
+                exception("Bounded array insertion would overflow");
+            }
+
+            this->elements[this->length] = element;
+            length++;
+        }
+
+        const T& operator[](std::size_t index) const
+        {
+            if(index < length)
             {
                 return elements[index];
             }
@@ -24,10 +37,20 @@ class BoundedArray
                 exception("Bounded array access out of bounds");
             }
         }
-    private:
-        T elements[LENGTH];
 
-        std::size_t current_capacity = 0;
+        std::size_t size() const
+        {
+            return length;
+        }
+
+        void reset()
+        {
+            this->length = 0;
+        }
+    private:
+        T elements[MAX_LENGTH];
+
+        std::size_t length = 0;
 };
 
 #endif
