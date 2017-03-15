@@ -26,7 +26,7 @@ class BoundedArray
             length++;
         }
 
-        const T& operator[](std::size_t index) const
+        const T& operator[](const std::size_t index) const
         {
             if(index < length)
             {
@@ -35,17 +35,41 @@ class BoundedArray
             else
             {
                 exception("Bounded array access out of bounds");
+                return this->elements[0];
             }
         }
 
+        /*
+         * Returns the amount of elements in the array
+         */
         std::size_t size() const
         {
             return length;
         }
 
+        /*
+         * "Removes" all elements in the array
+         *
+         * This is done by simply resetting length to 0
+        */
         void reset()
         {
             this->length = 0;
+        }
+
+        /**
+         * Searches for the specified needle in the array
+         */
+        bool contains(T needle) const
+        {
+            for(std::size_t i = 0; i < length; ++i)
+            {
+                if((*this)[i] == needle)
+                {
+                    return true;
+                }
+            }
+            return false;
         }
     private:
         T elements[MAX_LENGTH];

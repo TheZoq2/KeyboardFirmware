@@ -14,7 +14,7 @@
 #endif
 
 
-void exception(char* message)
+void exception(char const* message)
 {
     DEBUG_PRINT("An exception occured: ");
     DEBUG_PRINTLN(message);
@@ -22,7 +22,7 @@ void exception(char* message)
 #ifdef IS_ARDUINO
     exit(1);
 #else
-    throw "Out of bounds";
+    throw "Bounded array access out of bounds";
 #endif
 }
 #endif
