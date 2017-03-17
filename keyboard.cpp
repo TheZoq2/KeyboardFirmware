@@ -5,6 +5,7 @@ const int KEY_SHIFT = -1;
 const int KEY_CTRL = -2;
 const int KEY_ALT = -3;
 const int KEY_GUI = -4;
+const int KEY_ALT_RIGHT = -5;
 
 const int KEY_FN = -100;
 
@@ -27,7 +28,7 @@ const int Z::Board::KEYMAP[Z::Board::ROW_AMOUNT][Z::Board::COL_AMOUNT] =
         {KEY_TAB, KEY_Q, KEY_W, KEY_E, KEY_R, KEY_T, KEY_Y, KEY_U, KEY_I, KEY_O, KEY_P, KEY_LEFT_BRACE, KEY_RIGHT_BRACE, KEY_BACKSLASH},
         {KEY_FN, KEY_A, KEY_S, KEY_D, KEY_F, KEY_G, KEY_H, KEY_J, KEY_K, KEY_L, KEY_SEMICOLON, KEY_QUOTE, 0, KEY_ENTER},
         {KEY_SHIFT, KEYPAD_ASTERIX, KEY_Z, KEY_X, KEY_C, KEY_V, KEY_B, KEY_N, KEY_M, KEY_COMMA, KEY_PERIOD, KEY_SLASH, KEY_SHIFT, KEY_HOME},
-        {KEY_CTRL, KEY_FN, KEY_GUI, KEY_ALT, 0, 0, KEY_SPACE, 0, 0, KEY_ALT, KEY_FN, KEY_GUI, KEY_CTRL, KEY_END},
+        {KEY_CTRL, KEY_FN, KEY_GUI, KEY_ALT, 0, 0, KEY_SPACE, 0, 0, KEY_ALT_RIGHT, KEY_FN, KEY_GUI, KEY_CTRL, KEY_END},
     };
 
 const int Z::Board::FN_AMOUNT = 4;
@@ -214,6 +215,11 @@ void Z::Board::handleModifier(int keyCode)
         case(KEY_ALT):
         {
             currentModifier = currentModifier | MODIFIERKEY_ALT;
+            break;
+        }
+        case(KEY_ALT_RIGHT):
+        {
+            currentModifier = currentModifier | MODIFIERKEY_RIGHT_ALT;
             break;
         }
         case(KEY_GUI):
