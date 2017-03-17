@@ -82,3 +82,37 @@ TEST_CASE("Keyboard combination function", "[keyboard]")
     //Does not contain a coordinate that shouldn't be in any of the parts
     REQUIRE_FALSE(combined.contains(KeyCoordinate(6,1)));
 }
+
+
+TEST_CASE("Keyboard modifier offsets", "[keyboard]")
+{
+    Modifier mod = MOD_FN;
+    Keycode code = modifier_keycode(mod);
+    Modifier new_mod = modifier_from_keycode(code);
+
+    REQUIRE(mod == new_mod);
+    REQUIRE_THROWS(modifier_from_keycode(0));
+    REQUIRE_THROWS(modifier_from_keycode(MODIFIER_OFFSET - 1));
+    REQUIRE_THROWS(modifier_from_keycode(MODIFIER_OFFSET + MODIFIER_AMOUNT));
+    REQUIRE_NOTHROW(modifier_from_keycode(MODIFIER_OFFSET));
+}
+
+
+
+TEST_CASE("Simple coverate tests", "[keyboard]")
+{
+    init_modifier_list();
+}
+
+
+TEST_CASE("Keymap lookup", "[keyboard]")
+{
+    const Keycode raw_keymap[3][4] = {{1,4,7,10}, {2,5,8,11}, {3,6,9,12}};
+
+    auto keymap = init_keymap<4,3>(raw_keymap);
+
+    REQUIRE(keymap[0][0] == 1);
+    REQUIRE(keymap[2][2] == 9);
+    REQUIRE_THROWS(keymap[0][3]);
+    REQUIRE_THROWS(keymap[4][0]);
+}
