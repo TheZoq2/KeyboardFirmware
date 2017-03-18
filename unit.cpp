@@ -172,3 +172,48 @@ TEST_CASE("Keytype translation", "[keyboard]")
     REQUIRE(keytypes.modifiers.contains(MODIFIERKEY_RIGHT_ALT));
     REQUIRE(keytypes.modifiers.size() == 1);
 }
+
+
+
+
+TEST_CASE("Generating keyboard packets", "[keyboard packet generation]")
+{
+    //No previous keys and not too many keys
+    auto keys = BoundedArray<Keycode, 10>();
+    keys.push(KEY_A);
+    keys.push(KEY_B);
+    keys.push(KEY_C);
+
+    auto old_packet = KeyPacket();
+
+    auto keytypes = keycodes_to_keytypes(keys);
+    auto packet = keytypes_to_packet(keytypes, old_packet);
+
+    CHECK(packet.keys.contains(KEY_A));
+    CHECK(packet.keys.contains(KEY_B));
+    CHECK(packet.keys.contains(KEY_C));
+    CHECK(packet.keys.size() == 3);
+    CHECK(packet.modifiers == 0);
+
+
+    //Too many keys for one packet, some modifiers, some old, some old removed
+    keys.reset();
+    keys.push(KEY_A);
+    keys.push(KEY_C);
+    keys.push(KEY_D);
+    keys.push(KEY_E);
+    keys.push(KEY_F);
+    keys.push(KEY_G);
+    keys.push(KEY_H);
+    keys.push(MODIFIERKEY_SHIFT);
+    keys.push(MODIFIERKEY_CTRL);
+
+    keytypes = keycodes_to_keytypes(keys);
+    packet = keytypes_to_packet(keytypes, packet);
+
+    CHECK(packet.keys.contains(KEY_A));
+    CHECK(packet.keys.contains(KEY_C));
+    CHECK_FALSE(packet.keys.contains(KEY_B));
+    CHECK(packet.keys.size() == 6);
+    CHECK(packet.modifiers == (MODIFIERKEY_SHIFT | MODIFIERKEY_CTRL));
+}

@@ -9,6 +9,7 @@
 
 //The amount of possible modifier keys
 const uint8_t MODIFIER_AMOUNT=8;
+const uint8_t KEYS_PER_PACKET=6;
 const uint16_t KEYTYPE_MASK = 0xFF00;
 const uint16_t KEYCODE_MASK = 0x00FF;
 
@@ -171,13 +172,13 @@ BoundedArray<Keycode, WIDTH*HEIGHT> translate_coordinates(
 
 
 template<size_t KEY_AMOUNT>
-struct Keytypes
+struct KeyTypes
 {
     FunctionKeyList function_keys;
     BoundedArray<Keycode, KEY_AMOUNT> standard_keys;
     BoundedArray<Keycode, MODIFIER_AMOUNT> modifiers;
 
-    Keytypes()
+    KeyTypes()
     {
         this->function_keys = init_function_key_list();
     }
@@ -189,9 +190,9 @@ struct Keytypes
   TODO: Optimze this to not copy the keys
 */
 template<size_t KEY_AMOUNT>
-Keytypes<KEY_AMOUNT> keycodes_to_keytypes(const BoundedArray<Keycode, KEY_AMOUNT> keys)
+KeyTypes<KEY_AMOUNT> keycodes_to_keytypes(const BoundedArray<Keycode, KEY_AMOUNT> keys)
 {
-    Keytypes<KEY_AMOUNT> result;
+    KeyTypes<KEY_AMOUNT> result;
     for(size_t i = 0; i < keys.size(); ++i)
     {
         auto key_type = get_key_type(keys[i]);
@@ -211,6 +212,54 @@ Keytypes<KEY_AMOUNT> keycodes_to_keytypes(const BoundedArray<Keycode, KEY_AMOUNT
     return result;
 }
 
+
+struct KeyPacket
+{
+    uint16_t modifiers;
+    BoundedArray<Keycode, KEYS_PER_PACKET> keys;
+
+    KeyPacket()
+    {
+        modifiers = 0;
+    }
+};
+
+template<size_t KEY_AMOUNT>
+KeyPacket keytypes_to_packet(const KeyTypes<KEY_AMOUNT> keytypes, const KeyPacket old_packet)
+{
+    KeyPacket result;
+
+    //Building the modifiers
+    for(size_t i = 0; i < keytypes.modifiers.size(); ++i)
+    {
+        result.modifiers |= keytypes.modifiers[i];
+    }
+
+    //Check which keys should be sent again
+    BoundedArray<Keycode, KEY_AMOUNT> keys_not_sent;
+
+    for(size_t i = 0; i < keytypes.standard_keys.size(); ++i)
+    {
+        if(old_packet.keys.contains(keytypes.standard_keys[i]))
+        {
+            result.keys.push(keytypes.standard_keys[i]);
+        }
+        else
+        {
+            keys_not_sent.push(keytypes.standard_keys[i]);
+        }
+    }
+
+    //If there are still spots left in the keys_to_send list
+    int16_t next_key = keys_not_sent.size() - 1;
+    while(result.keys.size() < KEYS_PER_PACKET && next_key >= 0)
+    {
+        result.keys.push(keys_not_sent[next_key]);
+        next_key--;
+    }
+
+    return result;
+}
 
 
 #endif
