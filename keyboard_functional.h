@@ -1,41 +1,63 @@
 #ifndef H_KEYBOARD_FUNCTIONAL
 #define H_KEYBOARD_FUNCTIONAL
 
+#include "debug.h"
 #include "bounded_array.h"
 #include <functional>
+
+//See keycodes.h for details
+
+//The amount of possible modifier keys
+const uint8_t MODIFIER_AMOUNT=8;
+const uint16_t KEYTYPE_MASK = 0xFF00;
+const uint16_t KEYCODE_MASK = 0x00FF;
+
+
+enum class KeySignature : uint16_t
+{
+    FUNCTION = 0x0000,
+    MODIFIER = 0xE000,
+    MEDIA = 0xE400,
+    SYSTEM = 0xE200,
+    STANDARD = 0xFF00,
+};
+enum class KeyType
+{
+    FN,
+    MODIFIER,
+    MEDIA,
+    SYSTEM,
+    STANDARD,
+    UNRECOGNISED
+};
 
 using Keycode = uint16_t;
 
 /*
  * List of modifier keys on the keyboard
  */
-enum Modifier
+enum FunctionKey
 {
-    MOD_CTRL,
-    MOD_SHIFT,
-    MOD_RIGHT_ALT,
-    MOD_ALT,
-    MOD_FN,
-    MOD_RAISE,
-    MOD_LOWER,
-    MOD_GUI,
+    FN_RAISE,
+    FN_LOWER,
     //Helper for getting the amount of modifiers
-    MODIFIER_AMOUNT
+    FN_AMOUNT
 };
 
-using ModifierList = BoundedArray<bool, MODIFIER_AMOUNT>;
-ModifierList init_modifier_list()
-{
-    auto result = ModifierList();
-
-    for(uint8_t i = 0; i < MODIFIER_AMOUNT; i++)
-    {
-        result.push(false);
-    }
-    return result;
-}
+using FunctionKeyList = BoundedArray<bool, FN_AMOUNT>;
+FunctionKeyList init_modifier_list();
 
 
+/*
+ * Maps are stored in a column-row structure to allow
+ * [x][y] to be [horizontal][vertical]
+ *
+ * [
+ *   x1:[y1,y2,y3...]
+ *   x2:[y1,y2,y3...]
+ *   ...
+ * ]
+*/
 template<std::size_t WIDTH, std::size_t HEIGHT>
 using Keymap = BoundedArray< BoundedArray<Keycode, HEIGHT>, WIDTH>;
 
@@ -44,43 +66,25 @@ Keymap<WIDTH, HEIGHT> init_keymap(const Keycode map[HEIGHT][WIDTH])
 {
     auto result = Keymap<WIDTH, HEIGHT>();
 
-    for(std::size_t x = 0; x < WIDTH; ++x)
+    for(std::size_t col_i = 0; col_i < WIDTH; ++col_i)
     {
-        auto inner_result = BoundedArray<Keycode, HEIGHT>();
-        for(std::size_t y = 0; y < HEIGHT; ++y)
+        auto column = BoundedArray<Keycode, HEIGHT>();
+        for(std::size_t row_i = 0; row_i < HEIGHT; ++row_i)
         {
-            inner_result.push(map[y][x]);
+            column.push(map[row_i][col_i]);
         }
-        result.push(inner_result);
+        result.push(column);
     }
 
     return result;
 }
 
 
-/*
- * The start of modifier keys in keycodes
-*/
-static const uint16_t MODIFIER_OFFSET = 256;
 
-Keycode modifier_keycode(const Modifier modifier)
-{
-    return modifier + MODIFIER_OFFSET;
-}
-Modifier modifier_from_keycode(const Keycode code)
-{
-    if(code < MODIFIER_OFFSET)
-    {
-        exception("Tried to go from keycode to modifier for a keycode that is not a modifier");
-    }
 
-    Keycode decoded = Modifier(code - MODIFIER_OFFSET);
-    if(decoded >= MODIFIER_AMOUNT)
-    {
-        exception("Tried to go from keycode to modifier but got a too high modifier value");
-    }
-    return static_cast<Modifier>(decoded);
-}
+Keycode function_keycode(const FunctionKey modifier);
+KeyType get_key_type(const Keycode key);
+FunctionKey function_from_keycode(const Keycode key);
 
 /**
  Struct containing the current state of the keyboard. These are things
@@ -149,20 +153,54 @@ BoundedArray<KeyCoordinate, SIZE*2> merge_coordinates(
 /*
   Translates a list of coordinates into key codes
 */
-template<std::size_t SIZE, std::size_t WIDTH, std::size_t HEIGHT>
-BoundedArray<Keycode, SIZE> translate_coordinates(
-        const BoundedArray<KeyCoordinate, SIZE> coordinates,
+template<std::size_t WIDTH, std::size_t HEIGHT>
+BoundedArray<Keycode, WIDTH*HEIGHT> translate_coordinates(
+        const BoundedArray<KeyCoordinate, WIDTH*HEIGHT> coordinates,
         const Keymap<WIDTH, HEIGHT> map
     )
 {
-    auto result = BoundedArray<Keycode, SIZE>();
+    auto result = BoundedArray<Keycode, WIDTH*HEIGHT>();
     for(std::size_t i = 0; i < coordinates.size(); i++)
     {
-        result.push(map[coordinates.x][coordinates.y]);
+        result.push(map[coordinates[i].x][coordinates[i].y]);
     }
 
-    result;
+    return result;
 }
+
+
+
+template<std::size_t KEY_AMOUNT>
+struct PressedKeys
+{
+    FunctionKeyList function_keys;
+    BoundedArray<Keycode, KEY_AMOUNT> standard_keys;
+    BoundedArray<Keycode, MODIFIER_AMOUNT> modifiers;
+};
+
+/*
+  Creates a list of modifiers and keys from a list of keycodes
+
+  TODO: Optimze this to not copy the keys
+*/
+template<std::size_t KEY_AMOUNT>
+PressedKeys<KEY_AMOUNT> keycodes_to_pressed_keys(const BoundedArray<Keycode, KEY_AMOUNT> keys)
+{
+    PressedKeys<KEY_AMOUNT> result;
+    for(std::size_t i = 0; i < keys.size(); ++i)
+    {
+        if(is_functionkey(keys[i]))
+        {
+            result.function_keys[function_from_keycode(keys[i])];
+        }
+        else
+        {
+            result.standard_keys.push(keys[i]);
+        }
+    }
+    return result;
+}
+
 
 
 #endif

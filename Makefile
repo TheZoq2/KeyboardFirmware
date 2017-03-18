@@ -1,7 +1,7 @@
-SOURCES=debug.h bounded_array.h map.h keyboard_functional.h
+SOURCES=map.h keyboard_functional.cpp debug.cpp
 
 TEST_SOURCE=unit.cpp
 
 test:
-	g++ $(SOURCES) $(TEST_SOURCE) --std=c++11 -o test.out -Wall -g
+	g++ $(SOURCES) $(TEST_SOURCE) --std=c++11 -o test.out -Wall -g -Werror=return-type
 	./test.out -b

@@ -86,15 +86,13 @@ TEST_CASE("Keyboard combination function", "[keyboard]")
 
 TEST_CASE("Keyboard modifier offsets", "[keyboard]")
 {
-    Modifier mod = MOD_FN;
-    Keycode code = modifier_keycode(mod);
-    Modifier new_mod = modifier_from_keycode(code);
+    FunctionKey mod = FN_LOWER;
+    Keycode code = function_keycode(mod);
+    FunctionKey new_mod = function_from_keycode(code);
 
     REQUIRE(mod == new_mod);
-    REQUIRE_THROWS(modifier_from_keycode(0));
-    REQUIRE_THROWS(modifier_from_keycode(MODIFIER_OFFSET - 1));
-    REQUIRE_THROWS(modifier_from_keycode(MODIFIER_OFFSET + MODIFIER_AMOUNT));
-    REQUIRE_NOTHROW(modifier_from_keycode(MODIFIER_OFFSET));
+    REQUIRE_THROWS(function_from_keycode(0x1000)); //Wrong keymask
+    REQUIRE_THROWS(function_from_keycode(FN_AMOUNT)); //Modifier index too large
 }
 
 
@@ -107,12 +105,32 @@ TEST_CASE("Simple coverate tests", "[keyboard]")
 
 TEST_CASE("Keymap lookup", "[keyboard]")
 {
-    const Keycode raw_keymap[3][4] = {{1,4,7,10}, {2,5,8,11}, {3,6,9,12}};
+    //Ensuring that the keymap works as expected
+    const Keycode raw_keymap[3][4] = {
+        {1,4,7,10},
+        {2,5,8,11},
+        {3,6,9,12}
+    };
 
     auto keymap = init_keymap<4,3>(raw_keymap);
 
     REQUIRE(keymap[0][0] == 1);
     REQUIRE(keymap[2][2] == 9);
+    REQUIRE(keymap[2][1] == 8);
     REQUIRE_THROWS(keymap[0][3]);
     REQUIRE_THROWS(keymap[4][0]);
+
+
+    //Testing the keymap lookup function
+    auto pressed_coords = BoundedArray<KeyCoordinate, 4*3>();
+    pressed_coords.push(KeyCoordinate(1,0));
+    pressed_coords.push(KeyCoordinate(3,2));
+
+    auto pressed_keys = translate_coordinates<4, 3>(pressed_coords, keymap);
+
+    //Ensure the specified keys are in the list
+    REQUIRE(pressed_keys.contains(4));
+    REQUIRE(pressed_keys.contains(12));
+
+    REQUIRE(pressed_keys.size() == pressed_coords.size());
 }
