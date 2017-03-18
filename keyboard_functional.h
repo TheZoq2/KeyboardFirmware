@@ -58,18 +58,18 @@ FunctionKeyList init_function_key_list();
  *   ...
  * ]
 */
-template<std::size_t WIDTH, std::size_t HEIGHT>
+template<size_t WIDTH, size_t HEIGHT>
 using Keymap = BoundedArray< BoundedArray<Keycode, HEIGHT>, WIDTH>;
 
-template<std::size_t WIDTH, std::size_t HEIGHT>
+template<size_t WIDTH, size_t HEIGHT>
 Keymap<WIDTH, HEIGHT> init_keymap(const Keycode map[HEIGHT][WIDTH])
 {
     auto result = Keymap<WIDTH, HEIGHT>();
 
-    for(std::size_t col_i = 0; col_i < WIDTH; ++col_i)
+    for(size_t col_i = 0; col_i < WIDTH; ++col_i)
     {
         auto column = BoundedArray<Keycode, HEIGHT>();
-        for(std::size_t row_i = 0; row_i < HEIGHT; ++row_i)
+        for(size_t row_i = 0; row_i < HEIGHT; ++row_i)
         {
             column.push(map[row_i][col_i]);
         }
@@ -127,7 +127,7 @@ struct KeyCoordinate
   The coordinaes of array2 are modified using `function` before being put
   in the result.
 */
-template<std::size_t SIZE>
+template<size_t SIZE>
 BoundedArray<KeyCoordinate, SIZE*2> merge_coordinates(
             BoundedArray<KeyCoordinate, SIZE> array1,
             BoundedArray<KeyCoordinate, SIZE> array2,
@@ -136,12 +136,12 @@ BoundedArray<KeyCoordinate, SIZE*2> merge_coordinates(
 {
     BoundedArray<KeyCoordinate, SIZE*2> result;
 
-    for(std::size_t i = 0; i < array1.size(); ++i)
+    for(size_t i = 0; i < array1.size(); ++i)
     {
         result.push(array1[i]);
     }
 
-    for(std::size_t i = 0; i < array2.size(); i++)
+    for(size_t i = 0; i < array2.size(); i++)
     {
         result.push(function(array2[i]));
     }
@@ -153,14 +153,14 @@ BoundedArray<KeyCoordinate, SIZE*2> merge_coordinates(
 /*
   Translates a list of coordinates into key codes
 */
-template<std::size_t WIDTH, std::size_t HEIGHT>
+template<size_t WIDTH, size_t HEIGHT>
 BoundedArray<Keycode, WIDTH*HEIGHT> translate_coordinates(
         const BoundedArray<KeyCoordinate, WIDTH*HEIGHT> coordinates,
         const Keymap<WIDTH, HEIGHT> map
     )
 {
     auto result = BoundedArray<Keycode, WIDTH*HEIGHT>();
-    for(std::size_t i = 0; i < coordinates.size(); i++)
+    for(size_t i = 0; i < coordinates.size(); i++)
     {
         result.push(map[coordinates[i].x][coordinates[i].y]);
     }
@@ -170,7 +170,7 @@ BoundedArray<Keycode, WIDTH*HEIGHT> translate_coordinates(
 
 
 
-template<std::size_t KEY_AMOUNT>
+template<size_t KEY_AMOUNT>
 struct Keytypes
 {
     FunctionKeyList function_keys;
@@ -188,11 +188,11 @@ struct Keytypes
 
   TODO: Optimze this to not copy the keys
 */
-template<std::size_t KEY_AMOUNT>
+template<size_t KEY_AMOUNT>
 Keytypes<KEY_AMOUNT> keycodes_to_keytypes(const BoundedArray<Keycode, KEY_AMOUNT> keys)
 {
     Keytypes<KEY_AMOUNT> result;
-    for(std::size_t i = 0; i < keys.size(); ++i)
+    for(size_t i = 0; i < keys.size(); ++i)
     {
         auto key_type = get_key_type(keys[i]);
         if(key_type == KeyType::FN)

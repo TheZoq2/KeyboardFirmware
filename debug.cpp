@@ -6,7 +6,8 @@ void exception(char const* message)
     DEBUG_PRINTLN(message);
 
 #ifdef IS_ARDUINO
-    exit(1);
+    //exit(1);
+    abort();
 #else
     throw "Bounded array access out of bounds";
 #endif

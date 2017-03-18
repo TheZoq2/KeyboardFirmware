@@ -1,6 +1,9 @@
 #ifndef H_DEBUG
 #define H_DEBUG
 
+#ifdef IS_ARDUINO
+    #include <Arduino.h>
+#endif
 
 #ifdef IS_ARDUINO
     //Printing error messages

@@ -6,7 +6,7 @@
 /*
   Stack allocated array containing a fixed amount of elements.
 */
-template <typename T, std::size_t MAX_LENGTH>
+template <typename T, size_t MAX_LENGTH>
 class BoundedArray
 {
     public:
@@ -26,7 +26,7 @@ class BoundedArray
             length++;
         }
 
-        const T& operator[](const std::size_t index) const
+        const T& operator[](const size_t index) const
         {
             if(index < length)
             {
@@ -38,7 +38,7 @@ class BoundedArray
                 return this->elements[0];
             }
         }
-        T& operator[](const std::size_t index)
+        T& operator[](const size_t index)
         {
             if(index < length)
             {
@@ -54,7 +54,7 @@ class BoundedArray
         /*
          * Returns the amount of elements in the array
          */
-        std::size_t size() const
+        size_t size() const
         {
             return length;
         }
@@ -74,7 +74,7 @@ class BoundedArray
          */
         bool contains(T needle) const
         {
-            for(std::size_t i = 0; i < length; ++i)
+            for(size_t i = 0; i < length; ++i)
             {
                 if((*this)[i] == needle)
                 {
@@ -86,7 +86,7 @@ class BoundedArray
     private:
         T elements[MAX_LENGTH];
 
-        std::size_t length = 0;
+        size_t length = 0;
 };
 
 #endif
