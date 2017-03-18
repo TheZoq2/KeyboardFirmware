@@ -50,7 +50,7 @@ KeyType get_key_type(const Keycode key)
 /*
   Initializes a list of modifiers
 */
-FunctionKeyList init_modifier_list()
+FunctionKeyList init_function_key_list()
 {
     auto result = FunctionKeyList();
 

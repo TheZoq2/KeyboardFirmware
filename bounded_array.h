@@ -38,6 +38,18 @@ class BoundedArray
                 return this->elements[0];
             }
         }
+        T& operator[](const std::size_t index)
+        {
+            if(index < length)
+            {
+                return elements[index];
+            }
+            else
+            {
+                exception("Bounded array access out of bounds");
+                return this->elements[0];
+            }
+        }
 
         /*
          * Returns the amount of elements in the array

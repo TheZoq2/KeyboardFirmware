@@ -1,6 +1,8 @@
 #define CATCH_CONFIG_MAIN  // This tells Catch to provide a main() - only do this in one cpp file
 #include "catch.hpp"
 
+#include "keycodes.h"
+
 #include "bounded_array.h"
 #include "keyboard_functional.h"
 
@@ -99,7 +101,7 @@ TEST_CASE("Keyboard modifier offsets", "[keyboard]")
 
 TEST_CASE("Simple coverate tests", "[keyboard]")
 {
-    init_modifier_list();
+    init_function_key_list();
 }
 
 
@@ -133,4 +135,40 @@ TEST_CASE("Keymap lookup", "[keyboard]")
     REQUIRE(pressed_keys.contains(12));
 
     REQUIRE(pressed_keys.size() == pressed_coords.size());
+}
+
+
+TEST_CASE("Key type test", "[keyboard]")
+{
+    CHECK(get_key_type(MODIFIERKEY_RIGHT_ALT) == KeyType::MODIFIER);
+    CHECK(get_key_type(KEY_A) == KeyType::STANDARD);
+    CHECK(get_key_type(KEY_SYSTEM_POWER_DOWN) == KeyType::SYSTEM);
+    CHECK(get_key_type(KEY_MEDIA_MUTE) == KeyType::MEDIA);
+    CHECK(get_key_type(0x0f00) == KeyType::UNRECOGNISED);
+    CHECK(get_key_type(FunctionKey::FN_RAISE) == KeyType::FN);
+}
+
+
+
+TEST_CASE("Keytype translation", "[keyboard]")
+{
+    auto keys = BoundedArray<Keycode, 10>();
+
+    keys.push(KEY_A);
+    keys.push(KEY_B);
+    keys.push(MODIFIERKEY_RIGHT_ALT);
+    keys.push(FunctionKey::FN_RAISE);
+
+    auto keytypes = keycodes_to_keytypes(keys);
+
+
+    REQUIRE(keytypes.standard_keys.contains(KEY_A));
+    REQUIRE(keytypes.standard_keys.contains(KEY_B));
+    REQUIRE(keytypes.standard_keys.size() == 2);
+
+    REQUIRE(keytypes.function_keys[FunctionKey::FN_RAISE] == true);
+    REQUIRE(keytypes.function_keys[FunctionKey::FN_LOWER] == false);
+
+    REQUIRE(keytypes.modifiers.contains(MODIFIERKEY_RIGHT_ALT));
+    REQUIRE(keytypes.modifiers.size() == 1);
 }

@@ -19,7 +19,7 @@ enum class KeySignature : uint16_t
     MODIFIER = 0xE000,
     MEDIA = 0xE400,
     SYSTEM = 0xE200,
-    STANDARD = 0xFF00,
+    STANDARD = 0xF000,
 };
 enum class KeyType
 {
@@ -45,7 +45,7 @@ enum FunctionKey
 };
 
 using FunctionKeyList = BoundedArray<bool, FN_AMOUNT>;
-FunctionKeyList init_modifier_list();
+FunctionKeyList init_function_key_list();
 
 
 /*
@@ -171,11 +171,16 @@ BoundedArray<Keycode, WIDTH*HEIGHT> translate_coordinates(
 
 
 template<std::size_t KEY_AMOUNT>
-struct PressedKeys
+struct Keytypes
 {
     FunctionKeyList function_keys;
     BoundedArray<Keycode, KEY_AMOUNT> standard_keys;
     BoundedArray<Keycode, MODIFIER_AMOUNT> modifiers;
+
+    Keytypes()
+    {
+        this->function_keys = init_function_key_list();
+    }
 };
 
 /*
@@ -184,16 +189,21 @@ struct PressedKeys
   TODO: Optimze this to not copy the keys
 */
 template<std::size_t KEY_AMOUNT>
-PressedKeys<KEY_AMOUNT> keycodes_to_pressed_keys(const BoundedArray<Keycode, KEY_AMOUNT> keys)
+Keytypes<KEY_AMOUNT> keycodes_to_keytypes(const BoundedArray<Keycode, KEY_AMOUNT> keys)
 {
-    PressedKeys<KEY_AMOUNT> result;
+    Keytypes<KEY_AMOUNT> result;
     for(std::size_t i = 0; i < keys.size(); ++i)
     {
-        if(is_functionkey(keys[i]))
+        auto key_type = get_key_type(keys[i]);
+        if(key_type == KeyType::FN)
         {
-            result.function_keys[function_from_keycode(keys[i])];
+            result.function_keys[function_from_keycode(keys[i])] = true;
         }
-        else
+        else if(key_type == KeyType::MODIFIER)
+        {
+            result.modifiers.push(keys[i]);
+        }
+        else if(key_type == KeyType::STANDARD)
         {
             result.standard_keys.push(keys[i]);
         }

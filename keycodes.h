@@ -32,35 +32,11 @@
 #define KEYLAYOUTS_H__
 
 #include <stdint.h>
-#include <avr/pgmspace.h>
 
 #ifdef __cplusplus
 extern "C"{
 #endif
 
-//#define LAYOUT_US_ENGLISH
-//#define LAYOUT_CANADIAN_FRENCH
-//#define LAYOUT_CANADIAN_MULTILINGUAL
-//#define LAYOUT_DANISH
-//#define LAYOUT_FINNISH
-//#define LAYOUT_FRENCH
-//#define LAYOUT_FRENCH_BELGIAN
-//#define LAYOUT_FRENCH_SWISS
-//#define LAYOUT_GERMAN
-//#define LAYOUT_GERMAN_MAC
-//#define LAYOUT_GERMAN_SWISS
-//#define LAYOUT_ICELANDIC
-//#define LAYOUT_IRISH
-//#define LAYOUT_ITALIAN
-//#define LAYOUT_NORWEGIAN
-//#define LAYOUT_PORTUGUESE
-//#define LAYOUT_PORTUGUESE_BRAZILIAN
-//#define LAYOUT_SPANISH
-//#define LAYOUT_SPANISH_LATIN_AMERICA
-//#define LAYOUT_SWEDISH
-//#define LAYOUT_TURKISH
-//#define LAYOUT_UNITED_KINGDOM	
-//#define LAYOUT_US_INTERNATIONAL
 
 
 
