@@ -2,6 +2,7 @@
 #define H_KEYBOARD_ARDUINO
 
 #include "keyboard_functional.h"
+#include "constants.h"
 
 using namespace Z;
 
@@ -59,6 +60,25 @@ BoundedArray<KeyCoordinate, WIDTH*HEIGHT> read_pressed_keys(
 void set_key(const uint8_t index, const uint16_t key);
 void send_packet(const KeyPacket packet);
 
+template<size_t KEY_AMOUNT>
+void send_coordinates(const BoundedArray<KeyCoordinate, KEY_AMOUNT> coords)
+{
+    //send the start byte
+    Serial3.write(KEY_MESSAGE_START);
+
+    uint8_t checksum = 0;
+
+    for(size_t i = 0; i < coords.size(); ++i)
+    {
+        checksum += coords[i].x + coords[i].y;
+        Serial3.write(coords[i].x);
+        Serial3.write(coords[i].y);
+    }
+    //Write the checksum
+    Serial3.write(checksum);
+    //Write an end byte
+    Serial3.write(KEY_MESSAGE_END);
+}
 #endif
 
 

@@ -62,6 +62,9 @@ void loop()
         //}
         //Keyboard.set_modifier(packet.modifiers);
         //Keyboard.send_now();
-        send_packet(packet);
+
+        //send_packet(packet);
+
+        send_coordinates(read_keys);
     }
 }
