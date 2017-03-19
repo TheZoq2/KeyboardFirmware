@@ -7,7 +7,13 @@ void exception(char const* message)
 
 #ifdef IS_ARDUINO
     //exit(1);
-    abort();
+    //abort();
+    while(true)
+    {
+        delay(1000);
+        Serial.print("Arduino has crashed with message");
+        Serial.println(message);
+    }
 #else
     throw "Bounded array access out of bounds";
 #endif

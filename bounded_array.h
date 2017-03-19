@@ -11,6 +11,14 @@ class BoundedArray
 {
     public:
         BoundedArray(){}
+        BoundedArray(T elements[MAX_LENGTH])
+        {
+            for(size_t i = 0; i < MAX_LENGTH; ++i)
+            {
+                this->elements[i] = elements[i];
+            }
+            this->length = MAX_LENGTH;
+        }
 
         /**
           Appends a single element to the end of the currently stored array

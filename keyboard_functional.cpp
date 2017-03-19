@@ -1,16 +1,18 @@
 #include "keyboard_functional.h"
 
+using namespace Z;
+
 /*
   Returns the keycode for a functionkey
 */
-Keycode function_keycode(const FunctionKey modifier)
+Keycode Z::function_keycode(const FunctionKey modifier)
 {
     return modifier | static_cast<uint16_t>(KeySignature::FUNCTION);
 }
 /*
   Returns the function key that corresponds to a specific keycode
 */
-FunctionKey function_from_keycode(const Keycode key)
+Z::FunctionKey Z::function_from_keycode(const Keycode key)
 {
     if((get_key_type(key) != KeyType::FN) || key >= FN_AMOUNT)
     {
@@ -22,7 +24,7 @@ FunctionKey function_from_keycode(const Keycode key)
 /*
   Returns the type of a key
 */
-KeyType get_key_type(const Keycode key)
+Z::KeyType Z::get_key_type(const Keycode key)
 {
     uint16_t signature = key & KEYTYPE_MASK;
 
@@ -50,7 +52,7 @@ KeyType get_key_type(const Keycode key)
 /*
   Initializes a list of modifiers
 */
-FunctionKeyList init_function_key_list()
+Z::FunctionKeyList Z::init_function_key_list()
 {
     auto result = FunctionKeyList();
 

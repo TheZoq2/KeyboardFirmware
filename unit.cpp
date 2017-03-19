@@ -6,6 +6,8 @@
 #include "bounded_array.h"
 #include "keyboard_functional.h"
 
+using namespace Z;
+
 TEST_CASE( "Simple bounded array", "[bounded_array]" ) {
     BoundedArray<int, 5> array;
     REQUIRE_FALSE(array.contains(1));
@@ -34,6 +36,17 @@ TEST_CASE( "Simple bounded array", "[bounded_array]" ) {
     REQUIRE(array.size() == 0);
     CHECK_NOTHROW(array.push(1));
     REQUIRE_THROWS(array[2]);
+}
+
+TEST_CASE("Bounded array initializer", "[bounded_array]")
+{
+    uint8_t raw_data[] = {1,2,3,4,5};
+    auto array = BoundedArray<uint8_t, 5>(raw_data);
+    REQUIRE(array.contains(1));
+    REQUIRE(array.contains(2));
+    REQUIRE(array.contains(3));
+    REQUIRE(array.contains(4));
+    REQUIRE(array.contains(5));
 }
 
 
@@ -140,6 +153,8 @@ TEST_CASE("Keymap lookup", "[keyboard]")
 
 TEST_CASE("Key type test", "[keyboard]")
 {
+    CHECK(get_key_type(0xf000) == KeyType::STANDARD);
+
     CHECK(get_key_type(MODIFIERKEY_RIGHT_ALT) == KeyType::MODIFIER);
     CHECK(get_key_type(KEY_A) == KeyType::STANDARD);
     CHECK(get_key_type(KEY_SYSTEM_POWER_DOWN) == KeyType::SYSTEM);
