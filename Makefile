@@ -1,4 +1,4 @@
-SOURCES=map.h keyboard_functional.cpp debug.cpp keyboard_arduino.cpp
+SOURCES=map.h keyboard_functional.cpp debug.cpp 
 
 TEST_SOURCE=unit.cpp
 
