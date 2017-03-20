@@ -266,6 +266,45 @@ namespace Z
 
         return result;
     }
+
+
+    enum class CoordsFromBytesError
+    {
+        SUCCESS,
+        INVALID_AMOUNT_OF_BYTES,
+        INVALID_CHECKSUM
+    };
+    template<size_t KEY_AMOUNT>
+    struct FromBytesResult
+    {
+        BoundedArray<KeyCoordinate, KEY_AMOUNT> keys;
+        CoordsFromBytesError error;
+
+        FromBytesResult(CoordsFromBytesError error)
+        {
+            this->error = error;
+        }
+        FromBytesResult(BoundedArray<KeyCoordinate, KEY_AMOUNT> keys)
+        {
+            this->keys = keys;
+            this->error = CoordsFromBytesError::SUCCESS;
+        }
+    };
+
+    template<size_t KEY_AMOUNT>
+    FromBytesResult<KEY_AMOUNT> decode_coordinates_from_bytes(
+            BoundedArray<uint8_t, KEY_AMOUNT * 2 + 1> bytes
+        )
+    {
+        if(bytes.size() % 2 != 1)
+        {
+            FromBytesResult<KEY_AMOUNT>(CoordsFromBytesError::INVALID_AMOUNT_OF_BYTES);
+        }
+        for(uint8_t i = 0; i < bytes.size() / 2; i++)
+        {
+            
+        }
+    }
 }
 
 #endif

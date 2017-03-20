@@ -79,6 +79,56 @@ void send_coordinates(const BoundedArray<KeyCoordinate, KEY_AMOUNT> coords)
     //Write an end byte
     Serial3.write(KEY_MESSAGE_END);
 }
+
+
+/*
+  Reads a stream of bytes from Serial3 and puts all the read bytes
+  apart from the start and end bytes in an array
+
+  TODO: Possibly handle array overflow
+*/
+template<size_t MAX_RECEIVED_BYTES>
+BoundedArray<uint8_t, MAX_RECEIVED_BYTES> read_uart_byte_stream()
+{
+    auto received_bytes = BoundedArray<KeyCoordinate, MAX_RECEIVED_BYTES>();
+
+    bool done = false;
+    bool is_reading_keys = false;
+
+    while(!done)
+    {
+        uint8_t new_byte;
+        while(!Serial3.available())
+        {}
+
+        new_byte = Serial3.read();
+
+        if(!is_reading_keys && new_byte == KEY_MESSAGE_START)
+        {
+            is_reading_keys = true;
+        }
+        else
+        {
+            if(new_byte == KEY_MESSAGE_END)
+            {
+                done = true;
+                is_reading_keys = false;
+            }
+            //Something went wrong with the transmission. Start over
+            else if(new_byte == KEY_MESSAGE_START)
+            {
+                is_reading_keys = true;
+                received_bytes.reset();
+            }
+            else
+            {
+                received_bytes.push(new_byte);
+            }
+        }
+    }
+
+    return received_bytes;
+}
 #endif
 
 

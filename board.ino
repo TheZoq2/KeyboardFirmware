@@ -29,6 +29,8 @@ void setup()
     digitalWrite(ledPin, HIGH);
 
     Serial.begin(115200);
+    Serial3.setTX(20);
+    Serial3.begin(115200);
     //keyboard.setup();
 
     init_pins<WIDTH, HEIGHT>(ROW_PINS, COL_PINS);

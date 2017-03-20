@@ -232,3 +232,20 @@ TEST_CASE("Generating keyboard packets", "[keyboard packet generation]")
     CHECK(packet.keys.size() == 6);
     CHECK(packet.modifiers == (MODIFIERKEY_SHIFT | MODIFIERKEY_CTRL));
 }
+
+
+
+TEST_CASE("Key message decode", "[key transmission]")
+{
+    uint8_t checksum = 2 + 2 + 1 + 1 + 1 + 2;
+    uint8_t bytes_raw[11] = {0,0, 2,0, 0,2, 1,1, 1,2, checksum};
+    auto bytes = BoundedArray<uint8_t, 11>(bytes_raw);
+
+    auto decoded = decode_coordinates_from_bytes<5>(bytes);
+
+    REQUIRE(decoded.keys.contains(KeyCoordinate(0,0)));
+    REQUIRE(decoded.keys.contains(KeyCoordinate(2,0)));
+    REQUIRE(decoded.keys.contains(KeyCoordinate(0,2)));
+    REQUIRE(decoded.keys.contains(KeyCoordinate(1,1)));
+    REQUIRE(decoded.keys.contains(KeyCoordinate(1,2)));
+}

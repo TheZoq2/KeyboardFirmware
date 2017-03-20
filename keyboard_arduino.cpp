@@ -21,7 +21,7 @@ void set_key(const uint8_t index, const uint16_t key)
 
 void send_packet(const KeyPacket packet)
 {
-     for(uint8_t i = 0; i < packet.keys.size(); ++i)
+    for(uint8_t i = 0; i < packet.keys.size(); ++i)
     {
         set_key(i, packet.keys[i]);
     }
