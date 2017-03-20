@@ -243,9 +243,61 @@ TEST_CASE("Key message decode", "[key transmission]")
 
     auto decoded = decode_coordinates_from_bytes<5>(bytes);
 
+    REQUIRE(decoded.error == CoordsFromBytesError::SUCCESS);
     REQUIRE(decoded.keys.contains(KeyCoordinate(0,0)));
     REQUIRE(decoded.keys.contains(KeyCoordinate(2,0)));
     REQUIRE(decoded.keys.contains(KeyCoordinate(0,2)));
     REQUIRE(decoded.keys.contains(KeyCoordinate(1,1)));
     REQUIRE(decoded.keys.contains(KeyCoordinate(1,2)));
+
+    //Fewer coordinates than the maximum allowed amount
+    bytes.reset();
+    checksum = 2;
+    bytes.push(1);
+    bytes.push(1);
+    bytes.push(checksum);
+
+    decoded = decode_coordinates_from_bytes<5>(bytes);
+
+    REQUIRE(decoded.error == CoordsFromBytesError::SUCCESS);
+    REQUIRE(decoded.keys.contains(KeyCoordinate(1,1)));
+}
+
+TEST_CASE("Malformed message decode", "[key transmission]")
+{
+    {
+        //Invalid checksum
+        uint8_t checksum = 1; //should be 2
+        uint8_t bytes_raw[3] = {1,1, checksum};
+
+        auto bytes = BoundedArray<uint8_t, 3>(bytes_raw);
+        auto decoded = decode_coordinates_from_bytes<1>(bytes);
+
+        REQUIRE(decoded.error == CoordsFromBytesError::INVALID_CHECKSUM);
+
+        //Missing checksum
+        bytes.reset();
+        bytes.push(1);
+        bytes.push(1);
+        decoded = decode_coordinates_from_bytes<1>(bytes);
+        REQUIRE(decoded.error == CoordsFromBytesError::INVALID_AMOUNT_OF_BYTES);
+    }
+}
+
+
+
+TEST_CASE("Key message encode", "[key transmission]")
+{
+    auto original_coordinates = BoundedArray<KeyCoordinate, 3>();
+    original_coordinates.push(KeyCoordinate(3,2));
+    original_coordinates.push(KeyCoordinate(3,2));
+    //Leaving one empty to test that
+    
+    auto decoded = decode_coordinates_from_bytes<3>(coords_to_bytes(original_coordinates));
+
+    REQUIRE(decoded.error == CoordsFromBytesError::SUCCESS);
+    for(int i = 0; i < 2; ++i)
+    {
+        REQUIRE(original_coordinates[i] == decoded.keys[i]);
+    }
 }

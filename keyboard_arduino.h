@@ -14,7 +14,6 @@ void init_pins(
         const BoundedArray<uint8_t, WIDTH> col_pins
     )
 {
-    digitalWrite(13, HIGH);
     for(uint8_t y = 0; y < HEIGHT; ++y)
     {
         pinMode(row_pins[y], OUTPUT);
@@ -23,8 +22,6 @@ void init_pins(
             pinMode(col_pins[x], INPUT_PULLUP);
         }
     }
-    
-    digitalWrite(13, HIGH);
 }
 
 
@@ -60,24 +57,18 @@ BoundedArray<KeyCoordinate, WIDTH*HEIGHT> read_pressed_keys(
 void set_key(const uint8_t index, const uint16_t key);
 void send_packet(const KeyPacket packet);
 
-template<size_t KEY_AMOUNT>
-void send_coordinates(const BoundedArray<KeyCoordinate, KEY_AMOUNT> coords)
+template<size_t BYTE_AMOUNT>
+void send_uart_bytes(const BoundedArray<uint8_t, BYTE_AMOUNT> bytes)
 {
-    //send the start byte
+    //Write the start byte
     Serial3.write(KEY_MESSAGE_START);
 
-    uint8_t checksum = 0;
-
-    for(size_t i = 0; i < coords.size(); ++i)
+    for(size_t i = 0; i < bytes.size(); ++i)
     {
-        checksum += coords[i].x + coords[i].y;
-        Serial3.write(coords[i].x);
-        Serial3.write(coords[i].y);
+        Serial3.write(bytes[i]);
     }
-    //Write the checksum
-    Serial3.write(checksum);
-    //Write an end byte
     Serial3.write(KEY_MESSAGE_END);
+    Serial3.flush();
 }
 
 
@@ -90,7 +81,7 @@ void send_coordinates(const BoundedArray<KeyCoordinate, KEY_AMOUNT> coords)
 template<size_t MAX_RECEIVED_BYTES>
 BoundedArray<uint8_t, MAX_RECEIVED_BYTES> read_uart_byte_stream()
 {
-    auto received_bytes = BoundedArray<KeyCoordinate, MAX_RECEIVED_BYTES>();
+    auto received_bytes = BoundedArray<uint8_t, MAX_RECEIVED_BYTES>();
 
     bool done = false;
     bool is_reading_keys = false;
@@ -98,8 +89,11 @@ BoundedArray<uint8_t, MAX_RECEIVED_BYTES> read_uart_byte_stream()
     while(!done)
     {
         uint8_t new_byte;
-        while(!Serial3.available())
-        {}
+        while(Serial3.available() < 1)
+        {
+            //Serial.println("Waiting for uart");
+        }
+        Serial.println("After loop");
 
         new_byte = Serial3.read();
 
