@@ -97,9 +97,18 @@ namespace Z
      Struct containing the current state of the keyboard. These are things
      like the current layer we are operating in
     */
-    struct KeyboardState
+    template<size_t LAYER_AMOUNT, size_t WIDTH, size_t HEIGHT>
+    class KeyboardState
     {
-        uint8_t layer;
+        public:
+            const Keymap<WIDTH, HEIGHT> get_current_keymap() const
+            {
+                return keymaps[layer];
+            }
+
+        private:
+            uint8_t layer;
+            BoundedArray<Keymap<WIDTH, HEIGHT>, LAYER_AMOUNT> keymaps;
     };
 
 
@@ -177,6 +186,9 @@ namespace Z
 
 
 
+    /*
+      A list of different types of keys that are pressed
+    */
     template<size_t KEY_AMOUNT>
     struct KeyTypes
     {
@@ -219,6 +231,9 @@ namespace Z
     }
 
 
+    /*
+      A keyboard packet that can be sent to the computer
+    */
     struct KeyPacket
     {
         uint16_t modifiers;
@@ -230,6 +245,10 @@ namespace Z
         }
     };
 
+    /*
+      Generate a KeyPacket from a KeyType list aswell as the last packet that
+      was sent
+    */
     template<size_t KEY_AMOUNT>
     KeyPacket keytypes_to_packet(const KeyTypes<KEY_AMOUNT> keytypes, const KeyPacket old_packet)
     {
