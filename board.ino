@@ -46,7 +46,7 @@ void loop()
     while(true)
     {
         auto read_keys = read_pressed_keys(ROW_PINS, COL_PINS);
-#define IS_SLAVE
+//#define IS_SLAVE
 #ifdef IS_SLAVE
         auto bytes = coords_to_bytes(read_keys);
         send_uart_bytes(bytes);
@@ -54,18 +54,19 @@ void loop()
         delay(10);
 #else
         //auto read_keys = read_pressed_keys(ROW_PINS, COL_PINS);
-        auto read_bytes = read_uart_byte_stream<(WIDTH * HEIGHT)*2 + 1>();
-        auto decode_result = decode_coordinates_from_bytes<WIDTH * HEIGHT>(read_bytes);
-        if(decode_result.error != CoordsFromBytesError::SUCCESS)
-        {
-            Serial.println("Got invalid bytes");
-            continue;
-        }
-        digitalWrite(ledPin, HIGH);
-        Serial.println("Doing loop stuff");
-        auto other_read_keys = decode_result.keys;
+        //auto read_bytes = read_uart_byte_stream<(WIDTH * HEIGHT)*2 + 1>();
+        //auto decode_result = decode_coordinates_from_bytes<WIDTH * HEIGHT>(read_bytes);
+        //if(decode_result.error != CoordsFromBytesError::SUCCESS)
+        //{
+        //    Serial.println("Got invalid bytes");
+        //    continue;
+        //}
+        //digitalWrite(ledPin, HIGH);
+        //Serial.println("Doing loop stuff");
+        //auto other_read_keys = decode_result.keys;
+        auto other_read_keys = read_keys;
 
-        auto keymap = init_keymap<WIDTH, HEIGHT>(default_layout);
+        auto keymap = init_keymap<WIDTH, HEIGHT>(DEFAULT_LAYER);
 
         auto translated = translate_coordinates<WIDTH, HEIGHT>(other_read_keys, keymap);
 
@@ -75,6 +76,10 @@ void loop()
         old_packet = packet;
 
         send_packet(packet);
+
+        digitalWrite(ledPin, HIGH);
+
+        Serial.println(KEY_A);
 #endif
     }
 }

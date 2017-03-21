@@ -39,11 +39,10 @@
     #ifdef __cplusplus
                 extern "C"{
     #endif
+
     
     
-    
-    
-                // http://en.wikipedia.org/wiki/Keyboard_layout
+    // http://en.wikipedia.org/wiki/Keyboard_layout
     
     
     #define MODIFIERKEY_CTRL        ( 0x01 | 0xE000 )

@@ -4,10 +4,8 @@
 #include "debug.h"
 #include "bounded_array.h"
 #include <functional>
+#include "keycodes.h"
 
-#ifndef KEYCODE_MASK
-    #define KEYCODE_MASK 0xff700
-#endif
 
 //See keycodes.h for details
 
@@ -17,16 +15,15 @@ namespace Z
     const uint8_t MODIFIER_AMOUNT=8;
     const uint8_t KEYS_PER_PACKET=6;
     const uint16_t KEYTYPE_MASK = 0xFF00;
-    //const uint16_t KEYCODE_MASK = 0x00FF;
 
 
     enum class KeySignature : uint16_t
     {
-        FUNCTION = 0x0000,
-        MODIFIER = 0xE000,
-        MEDIA = 0xE400,
-        SYSTEM = 0xE200,
-        STANDARD = 0xF000,
+        FUNCTION =  0xC000,
+        MODIFIER =  MODIFIERKEY_ALT         & KEYTYPE_MASK,
+        MEDIA =     KEY_MEDIA_MUTE          & KEYTYPE_MASK,
+        SYSTEM =    0xFFFF, //TODO: Find the correct mask
+        STANDARD =  KEY_A                   & KEYTYPE_MASK,
     };
     enum class KeyType
     {
@@ -92,25 +89,6 @@ namespace Z
     Keycode function_keycode(const FunctionKey modifier);
     KeyType get_key_type(const Keycode key);
     FunctionKey function_from_keycode(const Keycode key);
-
-    /**
-     Struct containing the current state of the keyboard. These are things
-     like the current layer we are operating in
-    */
-    template<size_t LAYER_AMOUNT, size_t WIDTH, size_t HEIGHT>
-    class KeyboardState
-    {
-        public:
-            const Keymap<WIDTH, HEIGHT> get_current_keymap() const
-            {
-                return keymaps[layer];
-            }
-
-        private:
-            uint8_t layer;
-            BoundedArray<Keymap<WIDTH, HEIGHT>, LAYER_AMOUNT> keymaps;
-    };
-
 
     /**
       Struct for representing a raw pressed key without any association
@@ -370,6 +348,26 @@ namespace Z
         
         return result;
     }
+
+
+    /**
+     Struct containing the current state of the keyboard. These are things
+     like the current layer we are operating in
+    */
+    template<size_t LAYER_AMOUNT, size_t WIDTH, size_t HEIGHT>
+    class KeyboardState
+    {
+        public:
+            const Keymap<WIDTH, HEIGHT> get_current_keymap() const
+            {
+                return keymaps[layer];
+            }
+        private:
+            uint8_t layer;
+            BoundedArray<Keymap<WIDTH, HEIGHT>, LAYER_AMOUNT> keymaps;
+
+            //std::function<uint8_t(uint8_t, KeyType<WIDTH*HEIGHT>)> change_function;
+    };
 }
 
 #endif
