@@ -157,7 +157,7 @@ namespace Z
             result.push(array1[i]);
         }
 
-        for(size_t i = 0; i < array2.size(); i++)
+        for(size_t i = 0; i < array2.size(); ++i)
         {
             result.push(function(array2[i]));
         }
@@ -176,7 +176,7 @@ namespace Z
         )
     {
         auto result = BoundedArray<Keycode, WIDTH*HEIGHT>();
-        for(size_t i = 0; i < coordinates.size(); i++)
+        for(size_t i = 0; i < coordinates.size(); ++i)
         {
             result.push(map[coordinates[i].x][coordinates[i].y]);
         }
@@ -283,6 +283,91 @@ namespace Z
             next_key--;
         }
 
+        return result;
+    }
+
+
+
+    /*
+      Translates a list of keyboard coordinates into a list of bytes that can
+      be sent over UART and decoded by the decode_coordinates_from_bytes function
+    */
+    template<size_t KEY_AMOUNT>
+    BoundedArray<uint8_t, KEY_AMOUNT * 2 + 1> coords_to_bytes(
+            BoundedArray<KeyCoordinate, KEY_AMOUNT> coords
+        )
+    {
+        auto result = BoundedArray<uint8_t, KEY_AMOUNT * 2 + 1>();
+        uint8_t checksum = 0;
+        for(size_t i = 0; i < coords.size(); ++i)
+        {
+            result.push(coords[i].x);
+            result.push(coords[i].y);
+
+            checksum += coords[i].x + coords[i].y;
+        }
+        result.push(checksum);
+        return result;
+    }
+
+
+    /*
+      Different things that can go wrong when translating bytes to coordinates
+    */
+    enum class CoordsFromBytesError
+    {
+        SUCCESS,
+        INVALID_AMOUNT_OF_BYTES,
+        INVALID_CHECKSUM
+    };
+    /*
+      Result type that is returned when translating bytes to coordinates
+    */
+    template<size_t KEY_AMOUNT>
+    struct CoordsFromBytesResult
+    {
+        BoundedArray<KeyCoordinate, KEY_AMOUNT> keys;
+        CoordsFromBytesError error;
+
+        CoordsFromBytesResult(CoordsFromBytesError error)
+        {
+            this->error = error;
+        }
+        CoordsFromBytesResult(BoundedArray<KeyCoordinate, KEY_AMOUNT> keys)
+        {
+            this->keys = keys;
+            this->error = CoordsFromBytesError::SUCCESS;
+        }
+    };
+
+    /*
+      Converts a stream of keyboard bytes into coordinates
+    */
+    template<size_t KEY_AMOUNT>
+    CoordsFromBytesResult<KEY_AMOUNT> decode_coordinates_from_bytes(
+            BoundedArray<uint8_t, KEY_AMOUNT * 2 + 1> bytes
+        )
+    {
+        auto result = BoundedArray<KeyCoordinate, KEY_AMOUNT>();
+
+        if(bytes.size() % 2 != 1)
+        {
+            return CoordsFromBytesResult<KEY_AMOUNT>(CoordsFromBytesError::INVALID_AMOUNT_OF_BYTES);
+        }
+
+        uint8_t checksum = 0;
+        for(uint8_t i = 0; i < (bytes.size() - 1) / 2; ++i)
+        {
+            uint8_t index = i * 2;
+            result.push(KeyCoordinate(bytes[index], bytes[index+1]));
+            checksum += bytes[index] + bytes[index+1];
+        }
+
+        if(checksum != bytes[bytes.size() - 1])
+        {
+            return CoordsFromBytesResult<KEY_AMOUNT>(CoordsFromBytesError::INVALID_CHECKSUM);
+        }
+        
         return result;
     }
 }
