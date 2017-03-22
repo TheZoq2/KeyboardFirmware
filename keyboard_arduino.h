@@ -89,13 +89,12 @@ BoundedArray<uint8_t, MAX_RECEIVED_BYTES> read_uart_byte_stream()
     while(!done)
     {
         uint8_t new_byte;
-        while(Serial3.available() < 1)
+        while(Serial1.available() < 1)
         {
             //Serial.println("Waiting for uart");
         }
-        Serial.println("After loop");
 
-        new_byte = Serial3.read();
+        new_byte = Serial1.read();
 
         if(!is_reading_keys && new_byte == KEY_MESSAGE_START)
         {

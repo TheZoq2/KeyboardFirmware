@@ -4,6 +4,8 @@
 #include "keyboard_arduino.h"
 #include "layouts.h"
 
+#include <HardwareSerial.h>
+
 using namespace Z;
 
 const int dummy = 0;
@@ -14,6 +16,17 @@ const int ledPin = 13;
 const uint8_t WIDTH = 6;
 const uint8_t FULL_WIDTH = WIDTH * 2;
 const uint8_t HEIGHT = 4;
+
+
+//This is ugly but it fixes an undefined reference to an STD function. 
+//Perhaps something should be logged
+namespace std
+{
+    void __throw_bad_function_call()
+    {
+
+    }
+}
 
 
 
@@ -31,7 +44,8 @@ void setup()
 
     Serial.begin(115200);
     Serial3.setTX(20);
-    Serial3.setRX(7);
+    //Serial3.setRX(7);
+    Serial1.begin(9600);
     Serial3.begin(9600);
     //keyboard.setup();
 
@@ -45,34 +59,36 @@ void loop()
     auto old_packet = KeyPacket();
     while(true)
     {
-        auto read_keys = read_pressed_keys(ROW_PINS, COL_PINS);
+        auto self_keys = read_pressed_keys(ROW_PINS, COL_PINS);
 //#define IS_SLAVE
 #ifdef IS_SLAVE
-        auto bytes = coords_to_bytes(read_keys);
+        auto bytes = coords_to_bytes(self_keys);
         send_uart_bytes(bytes);
         digitalWrite(ledPin, HIGH);
-        delay(10);
 #else
         //auto read_keys = read_pressed_keys(ROW_PINS, COL_PINS);
         auto read_bytes = read_uart_byte_stream<(WIDTH * HEIGHT)*2 + 1>();
-        auto decode_result = decode_coordinates_from_bytes<WIDTH * HEIGHT>(read_bytes);
-        if(decode_result.error != CoordsFromBytesError::SUCCESS)
+        auto decoded_coordinates = decode_coordinates_from_bytes<WIDTH * HEIGHT>(read_bytes);
+        if(decoded_coordinates.error != CoordsFromBytesError::SUCCESS)
         {
             Serial.println("Got invalid bytes");
             continue;
         }
         digitalWrite(ledPin, HIGH);
-        Serial.println("Doing loop stuff");
-        auto other_read_keys = decode_result.keys;
-        //auto other_read_keys = read_keys;
+        auto other_read_keys = decoded_coordinates.keys;
 
-        auto keymap = init_keymap<WIDTH, HEIGHT>(DEFAULT_LAYER);
+        auto keymap = init_keymap<FULL_WIDTH, HEIGHT>(DEFAULT_LAYER);
 
-        auto translated = translate_coordinates<WIDTH, HEIGHT>(other_read_keys, keymap);
+        auto full_coordinates = merge_coordinates(self_keys, other_read_keys, 
+                [](KeyCoordinate coord) {
+                    return KeyCoordinate(coord.x + WIDTH, coord.y);
+                });
 
-        auto keytypes = keycodes_to_keytypes<WIDTH * HEIGHT>(translated);
+        auto translated = translate_coordinates<FULL_WIDTH, HEIGHT>(full_coordinates, keymap);
 
-        auto packet = keytypes_to_packet<WIDTH*HEIGHT>(keytypes, old_packet);
+        auto keytypes = keycodes_to_keytypes<FULL_WIDTH * HEIGHT>(translated);
+
+        auto packet = keytypes_to_packet<FULL_WIDTH*HEIGHT>(keytypes, old_packet);
         old_packet = packet;
 
         send_packet(packet);
