@@ -54,17 +54,17 @@ void loop()
         delay(10);
 #else
         //auto read_keys = read_pressed_keys(ROW_PINS, COL_PINS);
-        //auto read_bytes = read_uart_byte_stream<(WIDTH * HEIGHT)*2 + 1>();
-        //auto decode_result = decode_coordinates_from_bytes<WIDTH * HEIGHT>(read_bytes);
-        //if(decode_result.error != CoordsFromBytesError::SUCCESS)
-        //{
-        //    Serial.println("Got invalid bytes");
-        //    continue;
-        //}
-        //digitalWrite(ledPin, HIGH);
-        //Serial.println("Doing loop stuff");
-        //auto other_read_keys = decode_result.keys;
-        auto other_read_keys = read_keys;
+        auto read_bytes = read_uart_byte_stream<(WIDTH * HEIGHT)*2 + 1>();
+        auto decode_result = decode_coordinates_from_bytes<WIDTH * HEIGHT>(read_bytes);
+        if(decode_result.error != CoordsFromBytesError::SUCCESS)
+        {
+            Serial.println("Got invalid bytes");
+            continue;
+        }
+        digitalWrite(ledPin, HIGH);
+        Serial.println("Doing loop stuff");
+        auto other_read_keys = decode_result.keys;
+        //auto other_read_keys = read_keys;
 
         auto keymap = init_keymap<WIDTH, HEIGHT>(DEFAULT_LAYER);
 

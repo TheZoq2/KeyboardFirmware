@@ -19,10 +19,10 @@ namespace Z
 
     enum class KeySignature : uint16_t
     {
-        FUNCTION =  0xC000,
+        FUNCTION =  0x0000,
         MODIFIER =  MODIFIERKEY_ALT         & KEYTYPE_MASK,
         MEDIA =     KEY_MEDIA_MUTE          & KEYTYPE_MASK,
-        SYSTEM =    0xFFFF, //TODO: Find the correct mask
+        SYSTEM =    KEY_SYSTEM_POWER_DOWN   & KEYTYPE_MASK, //TODO: Find the correct mask
         STANDARD =  KEY_A                   & KEYTYPE_MASK,
     };
     enum class KeyType
