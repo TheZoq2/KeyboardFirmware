@@ -189,6 +189,47 @@ TEST_CASE("Keytype translation", "[keyboard]")
 }
 
 
+TEST_CASE("State changes", "[keyboard]")
+{
+    auto change_function = [](uint8_t id, KeyTypes<6> pressed_keys)
+    {
+        if(pressed_keys.function_keys.contains(FunctionKey::FN_LOWER))
+        {
+            return 1;
+        }
+        else
+        {
+            return 0;
+        }
+    };
+
+    const Keycode default_layout[2][3] = {
+        {KEY_A, KEY_B, KEY_C},
+        {FN_LOWER, FN_RAISE, KEY_SPACE}
+    };
+    const Keycode raised_layout[2][3] = {
+        {KEY_Q, KEY_W, KEY_R},
+        {FN_LOWER, FN_RAISE, KEY_SPACE}
+    };
+
+    Keymap<3,2> keymaps[2] = {init_keymap<3,2>(default_layout), init_keymap<3,2>(raised_layout)};
+
+    auto state_manager = KeyboardStateManager<2, 3, 2>(keymaps, change_function);
+
+    //Ensure that the default layout is 0
+    REQUIRE(state_manager.get_current_keymap()[0][0] == KEY_A);
+
+    auto keys = BoundedArray<Keycode, 6>();
+
+    keys.push(FunctionKey::FN_LOWER);
+
+    auto keytypes = keycodes_to_keytypes(keys);
+
+    state_manager.update_current_layer(keytypes);
+
+    //Make sure the layout has changed
+    REQUIRE(state_manager.get_current_keymap()[0][0] == KEY_Q);
+}
 
 
 TEST_CASE("Generating keyboard packets", "[keyboard packet generation]")
@@ -301,3 +342,6 @@ TEST_CASE("Key message encode", "[key transmission]")
         REQUIRE(original_coordinates[i] == decoded.keys[i]);
     }
 }
+
+
+

@@ -4,8 +4,6 @@
 #include "keyboard_functional.h"
 #include "constants.h"
 
-using namespace Z;
-
 const uint16_t READ_DELAY = 5; //microseconds
 
 template<size_t WIDTH, size_t HEIGHT>
@@ -26,12 +24,12 @@ void init_pins(
 
 
 template<size_t WIDTH, size_t HEIGHT>
-BoundedArray<KeyCoordinate, WIDTH*HEIGHT> read_pressed_keys(
+BoundedArray<Z::KeyCoordinate, WIDTH*HEIGHT> read_pressed_keys(
         const BoundedArray<uint8_t, HEIGHT> row_pins,
         const BoundedArray<uint8_t, WIDTH> col_pins
     )
 {
-    auto result = BoundedArray<KeyCoordinate, WIDTH*HEIGHT>();
+    auto result = BoundedArray<Z::KeyCoordinate, WIDTH*HEIGHT>();
 
     for(uint8_t y = 0; y < HEIGHT; ++y)
     {
@@ -44,7 +42,7 @@ BoundedArray<KeyCoordinate, WIDTH*HEIGHT> read_pressed_keys(
         {
             if(digitalRead(col_pins[x]) == LOW)
             {
-                result.push(KeyCoordinate(x, y));
+                result.push(Z::KeyCoordinate(x, y));
             }
         }
         digitalWrite(row_pins[y], HIGH);
@@ -55,7 +53,7 @@ BoundedArray<KeyCoordinate, WIDTH*HEIGHT> read_pressed_keys(
 
 
 void set_key(const uint8_t index, const uint16_t key);
-void send_packet(const KeyPacket packet);
+void send_packet(const Z::KeyPacket packet);
 
 template<size_t BYTE_AMOUNT>
 void send_uart_bytes(const BoundedArray<uint8_t, BYTE_AMOUNT> bytes)

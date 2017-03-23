@@ -1,5 +1,7 @@
 #include "keyboard_arduino.h"
 
+using namespace Z;
+
 void set_key(const uint8_t index, const uint16_t key)
 {
     switch(index)
