@@ -359,32 +359,33 @@ namespace Z
     {
         public:
             KeyboardStateManager(
-                    BoundedArray<Keymap<WIDTH, HEIGHT>, LAYER_AMOUNT> keymaps,
-                    std::function<uint8_t(uint8_t, KeyTypes<WIDTH*HEIGHT>)> change_function
+                    //BoundedArray<Keymap<WIDTH, HEIGHT>, LAYER_AMOUNT> keymaps
+                    //std::function<uint8_t(uint8_t, KeyTypes<WIDTH*HEIGHT>)> change_function
                     )
             {
-                this-> keymaps = keymaps;
-                this->change_function = change_function;
+                //digitalWrite(13, HIGH);
+                //this-> keymaps = keymaps;
+                //this->change_function = change_function;
             }
 
-            const Keymap<WIDTH, HEIGHT> get_current_keymap() const
-            {
-                Serial.println("returning keymap");
-                return keymaps[layer];
-            }
+            //const Keymap<WIDTH, HEIGHT> get_current_keymap() const
+            //{
+            //    Serial.println("returning keymap");
+            //    return keymaps[layer];
+            //}
 
-            void update_current_layer(KeyTypes<WIDTH*HEIGHT> pressed_keys)
-            {
-                this->layer = change_function(this->layer, pressed_keys);
+            //void update_current_layer(KeyTypes<WIDTH*HEIGHT> pressed_keys)
+            //{
+            //    this->layer = change_function(this->layer, pressed_keys);
 
-                if(this->layer > LAYER_AMOUNT)
-                {
-                    exception("Keyboard layer is higher than the amount of keymaps on the keyboard");
-                }
-            }
+            //    if(this->layer > LAYER_AMOUNT)
+            //    {
+            //        exception("Keyboard layer is higher than the amount of keymaps on the keyboard");
+            //    }
+            //}
         private:
             uint8_t layer = 0;
-            BoundedArray<Keymap<WIDTH, HEIGHT>, LAYER_AMOUNT> keymaps;
+            //BoundedArray<Keymap<WIDTH, HEIGHT>, LAYER_AMOUNT> keymaps;
 
             std::function<uint8_t(uint8_t, KeyTypes<WIDTH*HEIGHT>)> change_function;
     };

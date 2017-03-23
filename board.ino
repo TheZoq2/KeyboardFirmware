@@ -75,12 +75,11 @@ void loop()
             Serial.println("Got invalid bytes");
             continue;
         }
-        digitalWrite(ledPin, HIGH);
         auto other_read_keys = decoded_coordinates.keys;
 
-        //auto keymap = init_keymap<FULL_WIDTH, HEIGHT>(DEFAULT_LAYER);
-        Serial.println("What the fuck");
-        auto keymap = state_manager.get_current_keymap();
+        auto keymap = init_keymap<FULL_WIDTH, HEIGHT>(DEFAULT_LAYER);
+        //Serial.println("What the fuck");
+        //auto keymap = state_manager.get_current_keymap();
 
         auto full_coordinates = merge_coordinates(self_keys, other_read_keys, 
                 [](KeyCoordinate coord) {
@@ -96,7 +95,8 @@ void loop()
 
         send_packet(packet);
 
-        state_manager.update_current_layer(keytypes);
+        Serial.println("Yoloswag");
+        //state_manager.update_current_layer(keytypes);
 
         digitalWrite(ledPin, HIGH);
 #endif

@@ -34,31 +34,33 @@ const Z::Keycode LOWER_LAYER[HEIGHT][FULL_WIDTH] = {
 
 Z::KeyboardStateManager<LAYER_AMOUNT, FULL_WIDTH, HEIGHT> init_state_manager()
 {
-    auto layer_change_function = [](uint8_t current_layer, Z::KeyTypes<FULL_WIDTH * HEIGHT> keys)
-    {
-        (void)(current_layer); //Avoid the unused parameter warning
+    //auto layer_change_function = [](uint8_t current_layer, Z::KeyTypes<FULL_WIDTH * HEIGHT> keys)
+    //{
+    //    (void)(current_layer); //Avoid the unused parameter warning
 
-        if(keys.function_keys.contains(Z::FunctionKey::FN_LOWER))
-        {
-            return LOWERED;
-        }
-        else if(keys.function_keys.contains(Z::FunctionKey::FN_RAISE))
-        {
-            return RAISED;
-        }
-        else
-        {
-            return NORMAL;
-        }
-    };
+    //    if(keys.function_keys.contains(Z::FunctionKey::FN_LOWER))
+    //    {
+    //        return LOWERED;
+    //    }
+    //    else if(keys.function_keys.contains(Z::FunctionKey::FN_RAISE))
+    //    {
+    //        return RAISED;
+    //    }
+    //    else
+    //    {
+    //        return NORMAL;
+    //    }
+    //};
 
-    Z::Keymap<FULL_WIDTH, HEIGHT> keymaps[LAYER_AMOUNT] = {
-        Z::init_keymap<FULL_WIDTH, HEIGHT>(DEFAULT_LAYER),
-        Z::init_keymap<FULL_WIDTH, HEIGHT>(LOWER_LAYER),
-        Z::init_keymap<FULL_WIDTH, HEIGHT>(DEFAULT_LAYER) //TODO: Add a raised layer
-    };
-    auto keymap_array = BoundedArray<Z::Keymap<FULL_WIDTH, HEIGHT>, LAYER_AMOUNT>(keymaps);
-    digitalWrite(13, HIGH);
-    return Z::KeyboardStateManager<LAYER_AMOUNT, FULL_WIDTH, HEIGHT>(keymap_array, layer_change_function);
+    //Z::Keymap<FULL_WIDTH, HEIGHT> keymaps[LAYER_AMOUNT] = {
+    //    Z::init_keymap<FULL_WIDTH, HEIGHT>(DEFAULT_LAYER),
+    //    Z::init_keymap<FULL_WIDTH, HEIGHT>(LOWER_LAYER),
+    //    Z::init_keymap<FULL_WIDTH, HEIGHT>(DEFAULT_LAYER) //TODO: Add a raised layer
+    //};
+    //auto keymap_array = BoundedArray<Z::Keymap<FULL_WIDTH, HEIGHT>, LAYER_AMOUNT>(keymaps);
+    return Z::KeyboardStateManager<LAYER_AMOUNT, FULL_WIDTH, HEIGHT>(
+            //keymap_array 
+        );
+            //layer_change_function
 }
 #endif
