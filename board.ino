@@ -39,6 +39,16 @@ void setup()
 {
     // initialize the digital pin as an output.
     pinMode(ledPin, OUTPUT);
+    digitalWrite(ledPin, HIGH);
+    delay(250);
+    digitalWrite(ledPin, LOW);
+    delay(250);
+    digitalWrite(ledPin, HIGH);
+    delay(250);
+    digitalWrite(ledPin, LOW);
+    delay(250);
+    digitalWrite(ledPin, HIGH);
+    delay(250);
     digitalWrite(ledPin, LOW);
 
     Serial.begin(115200);
@@ -53,6 +63,46 @@ void setup()
     delay(10); //Wait a while for the pull-up resistors to get ready
 }
 
+BoundedArray<KeyCoordinate, FULL_WIDTH*HEIGHT> read_hardware()
+{
+    auto self_keys = read_pressed_keys(ROW_PINS, COL_PINS);
+
+    auto read_keys = read_pressed_keys(ROW_PINS, COL_PINS);
+    auto read_bytes = read_uart_byte_stream<(WIDTH * HEIGHT)*2 + 1>();
+    auto decoded_coordinates = decode_coordinates_from_bytes<WIDTH * HEIGHT>(read_bytes);
+    if(decoded_coordinates.error != CoordsFromBytesError::SUCCESS)
+    {
+        Serial.println("Got invalid bytes");
+        return BoundedArray<KeyCoordinate, FULL_WIDTH*HEIGHT>();
+    }
+    auto other_read_keys = decoded_coordinates.keys;
+
+    //auto other_read_keys = BoundedArray<KeyCoordinate, WIDTH*HEIGHT>();
+
+    //Serial.println("What the fuck");
+    //auto keymap = state_manager.get_current_keymap();
+
+    auto full_coordinates = merge_coordinates(self_keys, other_read_keys, 
+            [](KeyCoordinate coord) {
+                return KeyCoordinate(coord.x + WIDTH, coord.y);
+            });
+
+    return full_coordinates;
+}
+
+
+KeyPacket generate_packet(
+        BoundedArray<KeyCoordinate, FULL_WIDTH*HEIGHT> pressed_keys,
+        KeyPacket old_packet
+    )
+{
+    auto keymap = init_keymap<FULL_WIDTH, HEIGHT>(DEFAULT_LAYER);
+
+    auto keycodes = translate_coordinates<FULL_WIDTH, HEIGHT>(pressed_keys, keymap);
+    auto keytypes = keycodes_to_keytypes(keycodes);
+    return keytypes_to_packet(keytypes, old_packet);
+}
+
 void loop() 
 {
     auto old_packet = KeyPacket();
@@ -60,43 +110,21 @@ void loop()
 
     while(true)
     {
-        auto self_keys = read_pressed_keys(ROW_PINS, COL_PINS);
 //#define IS_SLAVE
 #ifdef IS_SLAVE
         auto bytes = coords_to_bytes(self_keys);
         send_uart_bytes(bytes);
         digitalWrite(ledPin, HIGH);
 #else
-        //auto read_keys = read_pressed_keys(ROW_PINS, COL_PINS);
-        auto read_bytes = read_uart_byte_stream<(WIDTH * HEIGHT)*2 + 1>();
-        auto decoded_coordinates = decode_coordinates_from_bytes<WIDTH * HEIGHT>(read_bytes);
-        if(decoded_coordinates.error != CoordsFromBytesError::SUCCESS)
-        {
-            Serial.println("Got invalid bytes");
-            continue;
-        }
-        auto other_read_keys = decoded_coordinates.keys;
+        auto coordinates = read_hardware();
 
-        auto keymap = init_keymap<FULL_WIDTH, HEIGHT>(DEFAULT_LAYER);
-        //Serial.println("What the fuck");
-        //auto keymap = state_manager.get_current_keymap();
-
-        auto full_coordinates = merge_coordinates(self_keys, other_read_keys, 
-                [](KeyCoordinate coord) {
-                    return KeyCoordinate(coord.x + WIDTH, coord.y);
-                });
-
-        auto translated = translate_coordinates<FULL_WIDTH, HEIGHT>(full_coordinates, keymap);
-
-        auto keytypes = keycodes_to_keytypes(translated);
-
-        auto packet = keytypes_to_packet(keytypes, old_packet);
+        auto packet = generate_packet(coordinates, old_packet);
         old_packet = packet;
 
         send_packet(packet);
 
-        Serial.println("Yoloswag");
         //state_manager.update_current_layer(keytypes);
+        Serial.println("yoloswag");
 
         digitalWrite(ledPin, HIGH);
 #endif

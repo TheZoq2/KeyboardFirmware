@@ -6,6 +6,8 @@
 #include "bounded_array.h"
 #include "keyboard_functional.h"
 
+#include "layouts.h"
+
 using namespace Z;
 
 TEST_CASE( "Simple bounded array", "[bounded_array]" ) {
@@ -189,6 +191,7 @@ TEST_CASE("Keytype translation", "[keyboard]")
 }
 
 
+/*
 TEST_CASE("State changes", "[keyboard]")
 {
     auto change_function = [](uint8_t id, KeyTypes<6> pressed_keys)
@@ -229,6 +232,12 @@ TEST_CASE("State changes", "[keyboard]")
 
     //Make sure the layout has changed
     REQUIRE(state_manager.get_current_keymap()[0][0] == KEY_Q);
+}
+*/
+
+TEST_CASE("Create planck layout", "[keyboard]")
+{
+    auto keymap = init_state_manager();
 }
 
 

@@ -21,7 +21,7 @@ namespace Z
     {
         FUNCTION =  0x0000,
         MODIFIER =  MODIFIERKEY_ALT         & KEYTYPE_MASK,
-        MEDIA =     KEY_MEDIA_MUTE          & KEYTYPE_MASK,
+        MEDIA =     KEY_MEDIA_PLAY          & KEYTYPE_MASK,
         SYSTEM =    KEY_SYSTEM_POWER_DOWN   & KEYTYPE_MASK, //TODO: Find the correct mask
         STANDARD =  KEY_A                   & KEYTYPE_MASK,
     };
@@ -123,8 +123,8 @@ namespace Z
     */
     template<size_t SIZE>
     BoundedArray<KeyCoordinate, SIZE*2> merge_coordinates(
-                BoundedArray<KeyCoordinate, SIZE> array1,
-                BoundedArray<KeyCoordinate, SIZE> array2,
+                BoundedArray<KeyCoordinate, SIZE>& array1,
+                BoundedArray<KeyCoordinate, SIZE>& array2,
                 std::function<KeyCoordinate(KeyCoordinate)> function
             )
     {
@@ -149,8 +149,8 @@ namespace Z
     */
     template<size_t WIDTH, size_t HEIGHT>
     BoundedArray<Keycode, WIDTH*HEIGHT> translate_coordinates(
-            const BoundedArray<KeyCoordinate, WIDTH*HEIGHT> coordinates,
-            const Keymap<WIDTH, HEIGHT> map
+            const BoundedArray<KeyCoordinate, WIDTH*HEIGHT>& coordinates,
+            const Keymap<WIDTH, HEIGHT>& map
         )
     {
         auto result = BoundedArray<Keycode, WIDTH*HEIGHT>();
@@ -186,7 +186,7 @@ namespace Z
       TODO: Optimze this to not copy the keys
     */
     template<size_t KEY_AMOUNT>
-    KeyTypes<KEY_AMOUNT> keycodes_to_keytypes(const BoundedArray<Keycode, KEY_AMOUNT> keys)
+    KeyTypes<KEY_AMOUNT> keycodes_to_keytypes(const BoundedArray<Keycode, KEY_AMOUNT>& keys)
     {
         KeyTypes<KEY_AMOUNT> result;
         for(size_t i = 0; i < keys.size(); ++i)
@@ -228,7 +228,7 @@ namespace Z
       was sent
     */
     template<size_t KEY_AMOUNT>
-    KeyPacket keytypes_to_packet(const KeyTypes<KEY_AMOUNT> keytypes, const KeyPacket old_packet)
+    KeyPacket keytypes_to_packet(const KeyTypes<KEY_AMOUNT>& keytypes, const KeyPacket& old_packet)
     {
         KeyPacket result;
 
@@ -359,35 +359,36 @@ namespace Z
     {
         public:
             KeyboardStateManager(
-                    //BoundedArray<Keymap<WIDTH, HEIGHT>, LAYER_AMOUNT> keymaps
-                    //std::function<uint8_t(uint8_t, KeyTypes<WIDTH*HEIGHT>)> change_function
-                    )
+                    const Keymap<WIDTH, HEIGHT>* keymaps[LAYER_AMOUNT],
+                    const std::function<uint8_t(uint8_t, KeyTypes<WIDTH*HEIGHT>)> change_function
+                ) :
+                //keymaps(keymaps),
+                change_function(change_function)
             {
-                //digitalWrite(13, HIGH);
-                //this-> keymaps = keymaps;
-                //this->change_function = change_function;
+                this->keymaps = keymaps;
             }
 
             //const Keymap<WIDTH, HEIGHT> get_current_keymap() const
             //{
-            //    Serial.println("returning keymap");
             //    return keymaps[layer];
             //}
 
-            //void update_current_layer(KeyTypes<WIDTH*HEIGHT> pressed_keys)
-            //{
-            //    this->layer = change_function(this->layer, pressed_keys);
+            void update_current_layer(KeyTypes<WIDTH*HEIGHT> pressed_keys)
+            {
+                this->layer = change_function(this->layer, pressed_keys);
 
-            //    if(this->layer > LAYER_AMOUNT)
-            //    {
-            //        exception("Keyboard layer is higher than the amount of keymaps on the keyboard");
-            //    }
-            //}
+                if(this->layer > LAYER_AMOUNT)
+                {
+                    exception("Keyboard layer is higher than the amount of keymaps on the keyboard");
+                }
+            }
         private:
             uint8_t layer = 0;
-            //BoundedArray<Keymap<WIDTH, HEIGHT>, LAYER_AMOUNT> keymaps;
+            //const BoundedArray<Keymap<WIDTH, HEIGHT>, LAYER_AMOUNT>* keymaps;
+            const Keymap<WIDTH, HEIGHT>* keymaps[LAYER_AMOUNT];
+            //uint16_t padding[200];
 
-            std::function<uint8_t(uint8_t, KeyTypes<WIDTH*HEIGHT>)> change_function;
+            const std::function<uint8_t(uint8_t, KeyTypes<WIDTH*HEIGHT>)> change_function;
     };
 }
 
