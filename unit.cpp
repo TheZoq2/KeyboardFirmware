@@ -2,6 +2,7 @@
 #include "catch.hpp"
 
 #include "keycodes.h"
+#include "layouts.h"
 
 #include "bounded_array.h"
 #include "keyboard_functional.h"
@@ -181,54 +182,29 @@ TEST_CASE("Keytype translation", "[keyboard]")
     REQUIRE(keytypes.standard_keys.contains(KEY_B));
     REQUIRE(keytypes.standard_keys.size() == 2);
 
-    REQUIRE(keytypes.function_keys[FunctionKey::FN_RAISE] == true);
-    REQUIRE(keytypes.function_keys[FunctionKey::FN_LOWER] == false);
+    REQUIRE(keytypes.contains_functionkey(FunctionKey::FN_WM) == false);
+    REQUIRE(keytypes.contains_functionkey(FunctionKey::FN_RAISE) == true);
 
     REQUIRE(keytypes.modifiers.contains(MODIFIERKEY_RIGHT_ALT));
     REQUIRE(keytypes.modifiers.size() == 1);
 }
 
 
-TEST_CASE("State changes", "[keyboard]")
+TEST_CASE("Test planck layout", "[keyboard]")
 {
-    auto change_function = [](uint8_t id, KeyTypes<6> pressed_keys)
-    {
-        if(pressed_keys.function_keys.contains(FunctionKey::FN_LOWER))
-        {
-            return 1;
-        }
-        else
-        {
-            return 0;
-        }
-    };
+    KeyboardState current_state = KeyboardState::NORMAL;
 
-    const Keycode default_layout[2][3] = {
-        {KEY_A, KEY_B, KEY_C},
-        {FN_LOWER, FN_RAISE, KEY_SPACE}
-    };
-    const Keycode raised_layout[2][3] = {
-        {KEY_Q, KEY_W, KEY_R},
-        {FN_LOWER, FN_RAISE, KEY_SPACE}
-    };
+    auto keys = BoundedArray<Keycode, FULL_WIDTH*HEIGHT>();
 
-    Keymap<3,2> keymaps[2] = {init_keymap<3,2>(default_layout), init_keymap<3,2>(raised_layout)};
-
-    auto state_manager = KeyboardStateManager<2, 3, 2>(keymaps, change_function);
-
-    //Ensure that the default layout is 0
-    REQUIRE(state_manager.get_current_keymap()[0][0] == KEY_A);
-
-    auto keys = BoundedArray<Keycode, 6>();
+    //Make sure we are in the default layout
+    REQUIRE(get_current_keymap(current_state)[0][0] == KEY_TAB);
 
     keys.push(FunctionKey::FN_LOWER);
-
     auto keytypes = keycodes_to_keytypes(keys);
 
-    state_manager.update_current_layer(keytypes);
+    current_state = get_new_state(current_state, keytypes);
 
-    //Make sure the layout has changed
-    REQUIRE(state_manager.get_current_keymap()[0][0] == KEY_Q);
+    REQUIRE(get_current_keymap(current_state)[0][0] == KEY_TILDE);
 }
 
 

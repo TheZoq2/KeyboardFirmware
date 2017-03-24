@@ -44,6 +44,7 @@ namespace Z
     {
         FN_RAISE,
         FN_LOWER,
+        FN_WM,
         //Helper for getting the amount of modifiers
         FN_AMOUNT
     };
@@ -170,7 +171,6 @@ namespace Z
     template<size_t KEY_AMOUNT>
     struct KeyTypes
     {
-        FunctionKeyList function_keys;
         BoundedArray<Keycode, KEY_AMOUNT> standard_keys;
         BoundedArray<Keycode, MODIFIER_AMOUNT> modifiers;
 
@@ -178,6 +178,18 @@ namespace Z
         {
             this->function_keys = init_function_key_list();
         }
+
+        bool contains_functionkey(Z::FunctionKey key) const
+        {
+            return function_keys[key];
+        }
+        void set_functionkey(Z::FunctionKey key, bool value)
+        {
+            this->function_keys[key] = value;
+        }
+
+        private:
+            FunctionKeyList function_keys;
     };
 
     /*
@@ -194,7 +206,7 @@ namespace Z
             auto key_type = get_key_type(keys[i]);
             if(key_type == KeyType::FN)
             {
-                result.function_keys[function_from_keycode(keys[i])] = true;
+                result.set_functionkey(function_from_keycode(keys[i]), true);
             }
             else if(key_type == KeyType::MODIFIER)
             {
@@ -348,47 +360,6 @@ namespace Z
         
         return result;
     }
-
-
-    /**
-     Struct containing the current state of the keyboard. These are things
-     like the current layer we are operating in
-    */
-    template<size_t LAYER_AMOUNT, size_t WIDTH, size_t HEIGHT>
-    class KeyboardStateManager
-    {
-        public:
-            KeyboardStateManager(
-                    //BoundedArray<Keymap<WIDTH, HEIGHT>, LAYER_AMOUNT> keymaps
-                    //std::function<uint8_t(uint8_t, KeyTypes<WIDTH*HEIGHT>)> change_function
-                    )
-            {
-                //digitalWrite(13, HIGH);
-                //this-> keymaps = keymaps;
-                //this->change_function = change_function;
-            }
-
-            //const Keymap<WIDTH, HEIGHT> get_current_keymap() const
-            //{
-            //    Serial.println("returning keymap");
-            //    return keymaps[layer];
-            //}
-
-            //void update_current_layer(KeyTypes<WIDTH*HEIGHT> pressed_keys)
-            //{
-            //    this->layer = change_function(this->layer, pressed_keys);
-
-            //    if(this->layer > LAYER_AMOUNT)
-            //    {
-            //        exception("Keyboard layer is higher than the amount of keymaps on the keyboard");
-            //    }
-            //}
-        private:
-            uint8_t layer = 0;
-            //BoundedArray<Keymap<WIDTH, HEIGHT>, LAYER_AMOUNT> keymaps;
-
-            std::function<uint8_t(uint8_t, KeyTypes<WIDTH*HEIGHT>)> change_function;
-    };
 }
 
 #endif

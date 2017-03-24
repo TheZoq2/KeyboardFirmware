@@ -8,11 +8,12 @@ const uint8_t WIDTH = 6;
 const uint8_t FULL_WIDTH = WIDTH * 2;
 const uint8_t HEIGHT = 4;
 
-enum Layers
+enum class KeyboardState
 {
     NORMAL,
     LOWERED,
-    RAISED
+    RAISED,
+    WM_LAYER
 };
 
 const Z::Keycode DEFAULT_LAYER[HEIGHT][FULL_WIDTH] = {
@@ -20,47 +21,91 @@ const Z::Keycode DEFAULT_LAYER[HEIGHT][FULL_WIDTH] = {
     {KEY_ESC,           KEY_A, KEY_S, KEY_D, KEY_F, KEY_G, KEY_H, KEY_J, KEY_K,        KEY_L,      KEY_SEMICOLON, KEY_ENTER},
     {MODIFIERKEY_SHIFT, KEY_QUOTE,    KEY_Z, KEY_X, KEY_C, KEY_V, KEY_B, KEY_N, KEY_M, KEY_COMMA, KEY_PERIOD, KEY_SLASH},
 
-    {MODIFIERKEY_CTRL,  MODIFIERKEY_ALT, KEY_LEFT_BRACE, MODIFIERKEY_GUI, Z::FN_LOWER, KEY_SPACE, KEY_BACKSPACE, Z::FN_RAISE, MODIFIERKEY_RIGHT_ALT, KEY_RIGHT_BRACE, 0x0F, 0x0F}
+    {MODIFIERKEY_CTRL,  MODIFIERKEY_ALT, KEY_LEFT_BRACE, Z::FN_WM, Z::FN_LOWER, KEY_SPACE, KEY_BACKSPACE, Z::FN_RAISE, MODIFIERKEY_RIGHT_ALT, KEY_RIGHT_BRACE, 0x0F, 0x0F}
 };
 
 const Z::Keycode LOWER_LAYER[HEIGHT][FULL_WIDTH] = {
-    {
-        KEY_TILDE,           KEY_1, KEY_2,  KEY_2, KEY_4, KEY_5, KEY_5, KEY_7, KEY_8,        KEY_9,      KEY_0,         KEY_BACKSPACE},
-    {KEY_ESC,           KEY_A, KEY_S,  KEY_D, KEY_F, KEY_G, KEY_H, KEY_EQUAL, KEY_RIGHT_BRACE,        KEY_LEFT_BRACE,      KEY_SEMICOLON, KEY_QUOTE},
+    {KEY_TILDE,           KEY_1, KEY_2,  KEY_3, KEY_4, KEY_5, KEY_6, KEY_7, KEY_8,        KEY_9,      KEY_0,         KEY_BACKSPACE},
+    {KEY_ESC,           KEY_MINUS, KEY_S,  KEY_D, KEY_F, KEY_G, KEY_H, KEY_EQUAL, KEY_LEFT_BRACE,        KEY_RIGHT_BRACE,      KEY_SEMICOLON, KEY_QUOTE},
     {MODIFIERKEY_SHIFT, KEY_NON_US_BS, KEY_Z, KEY_X, KEY_C, KEY_V, KEY_B, KEY_N, KEY_M, KEY_COMMA, KEY_PERIOD, KEY_SLASH},
 
-    {MODIFIERKEY_CTRL,  MODIFIERKEY_ALT, KEY_LEFT_BRACE, MODIFIERKEY_GUI, Z::FN_LOWER, KEY_SPACE, KEY_BACKSPACE, Z::FN_RAISE, MODIFIERKEY_RIGHT_ALT, KEY_RIGHT_BRACE, 0x0F, 0x0F}
+    {MODIFIERKEY_CTRL,  MODIFIERKEY_ALT, KEY_LEFT_BRACE, Z::FN_WM, Z::FN_LOWER, KEY_SPACE, KEY_BACKSPACE, Z::FN_RAISE, MODIFIERKEY_RIGHT_ALT, KEY_RIGHT_BRACE, 0x0F, 0x0F}
 };
 
-Z::KeyboardStateManager<LAYER_AMOUNT, FULL_WIDTH, HEIGHT> init_state_manager()
+const Z::Keycode WM_LAYER[HEIGHT][FULL_WIDTH] = {
+    {KEY_TILDE,         KEY_1, KEY_2,  KEY_3, KEY_4, KEY_5, KEY_6, KEY_7, KEY_8,        KEY_9,      KEY_0,         KEY_BACKSPACE},
+    {KEY_ESC,           KEY_Q, KEY_S,  KEY_T, KEY_R, KEY_G, KEY_H, KEY_J, KEY_K,        KEY_L,      KEY_SEMICOLON, KEY_QUOTE},
+    {MODIFIERKEY_SHIFT, KEY_NON_US_BS, KEY_Z, KEY_X, KEY_C, KEY_V, KEY_B, KEY_N, KEY_M, KEY_COMMA, KEY_PERIOD, KEY_SLASH},
+
+    {MODIFIERKEY_CTRL,  MODIFIERKEY_ALT, KEY_LEFT_BRACE, Z::FN_WM, Z::FN_LOWER, KEY_SPACE, KEY_BACKSPACE, Z::FN_RAISE, MODIFIERKEY_RIGHT_ALT, KEY_RIGHT_BRACE, 0x0F, 0x0F}
+};
+
+
+/*
+  Function that determines the current state based on the old state aswell as what
+  keys have been pressed
+*/
+KeyboardState get_new_state(
+        const KeyboardState old_state, 
+        const Z::KeyTypes<FULL_WIDTH*HEIGHT>& pressed_keys
+    )
 {
-    //auto layer_change_function = [](uint8_t current_layer, Z::KeyTypes<FULL_WIDTH * HEIGHT> keys)
-    //{
-    //    (void)(current_layer); //Avoid the unused parameter warning
-
-    //    if(keys.function_keys.contains(Z::FunctionKey::FN_LOWER))
-    //    {
-    //        return LOWERED;
-    //    }
-    //    else if(keys.function_keys.contains(Z::FunctionKey::FN_RAISE))
-    //    {
-    //        return RAISED;
-    //    }
-    //    else
-    //    {
-    //        return NORMAL;
-    //    }
-    //};
-
-    //Z::Keymap<FULL_WIDTH, HEIGHT> keymaps[LAYER_AMOUNT] = {
-    //    Z::init_keymap<FULL_WIDTH, HEIGHT>(DEFAULT_LAYER),
-    //    Z::init_keymap<FULL_WIDTH, HEIGHT>(LOWER_LAYER),
-    //    Z::init_keymap<FULL_WIDTH, HEIGHT>(DEFAULT_LAYER) //TODO: Add a raised layer
-    //};
-    //auto keymap_array = BoundedArray<Z::Keymap<FULL_WIDTH, HEIGHT>, LAYER_AMOUNT>(keymaps);
-    return Z::KeyboardStateManager<LAYER_AMOUNT, FULL_WIDTH, HEIGHT>(
-            //keymap_array 
-        );
-            //layer_change_function
+    //Prevent unused variable warning for now
+    (void)(old_state);
+    if(pressed_keys.contains_functionkey(Z::FunctionKey::FN_LOWER))
+    {
+        return KeyboardState::LOWERED;
+    }
+    else if(pressed_keys.contains_functionkey(Z::FunctionKey::FN_WM))
+    {
+        return KeyboardState::WM_LAYER;
+    }
+    else
+    {
+        return KeyboardState::NORMAL;
+    }
 }
+
+
+/*
+  Function that returns the current keymap based on what state the keyboard is in
+*/
+Z::Keymap<FULL_WIDTH, HEIGHT> get_current_keymap(KeyboardState state)
+{
+    switch(state) 
+    {
+        case KeyboardState::NORMAL:
+        {
+            return Z::init_keymap<FULL_WIDTH, HEIGHT>(DEFAULT_LAYER);
+        }
+        case KeyboardState::LOWERED:
+        {
+            return Z::init_keymap<FULL_WIDTH, HEIGHT>(LOWER_LAYER);
+        }
+        case KeyboardState::WM_LAYER:
+        {
+            return Z::init_keymap<FULL_WIDTH, HEIGHT>(WM_LAYER);
+        }
+        default:
+            exception("Unimplemented keyboard state");
+            return Z::init_keymap<FULL_WIDTH, HEIGHT>(DEFAULT_LAYER);
+    }
+}
+
+/*
+  Returns the modifiers that should always be active when the state is active
+*/
+uint16_t get_state_modifier(KeyboardState state)
+{
+    switch(state) 
+    {
+        case KeyboardState::WM_LAYER:
+        {
+            return MODIFIERKEY_GUI;
+        }
+        default:
+            return 0;
+    }
+}
+
 #endif

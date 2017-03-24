@@ -56,7 +56,7 @@ void setup()
 void loop() 
 {
     auto old_packet = KeyPacket();
-    auto state_manager = init_state_manager();
+    auto current_state = KeyboardState::NORMAL;
 
     while(true)
     {
@@ -77,9 +77,7 @@ void loop()
         }
         auto other_read_keys = decoded_coordinates.keys;
 
-        auto keymap = init_keymap<FULL_WIDTH, HEIGHT>(DEFAULT_LAYER);
-        //Serial.println("What the fuck");
-        //auto keymap = state_manager.get_current_keymap();
+        auto keymap = get_current_keymap(current_state);
 
         auto full_coordinates = merge_coordinates(self_keys, other_read_keys, 
                 [](KeyCoordinate coord) {
@@ -89,13 +87,15 @@ void loop()
         auto translated = translate_coordinates<FULL_WIDTH, HEIGHT>(full_coordinates, keymap);
 
         auto keytypes = keycodes_to_keytypes(translated);
+        keytypes.modifiers.push(get_state_modifier(current_state));
+
+        current_state = get_new_state(current_state, keytypes);
 
         auto packet = keytypes_to_packet(keytypes, old_packet);
         old_packet = packet;
 
         send_packet(packet);
 
-        Serial.println("Yoloswag");
         //state_manager.update_current_layer(keytypes);
 
         digitalWrite(ledPin, HIGH);
