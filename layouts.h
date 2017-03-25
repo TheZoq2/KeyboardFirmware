@@ -21,7 +21,7 @@ const Z::Keycode DEFAULT_LAYER[HEIGHT][FULL_WIDTH] = {
     {KEY_ESC,           KEY_A, KEY_S, KEY_D, KEY_F, KEY_G, KEY_H, KEY_J, KEY_K,        KEY_L,      KEY_SEMICOLON, KEY_ENTER},
     {MODIFIERKEY_SHIFT, KEY_QUOTE,    KEY_Z, KEY_X, KEY_C, KEY_V, KEY_B, KEY_N, KEY_M, KEY_COMMA, KEY_PERIOD, KEY_SLASH},
 
-    {MODIFIERKEY_CTRL,  MODIFIERKEY_ALT, KEY_LEFT_BRACE, Z::FN_WM, Z::FN_LOWER, KEY_SPACE, KEY_BACKSPACE, Z::FN_RAISE, MODIFIERKEY_RIGHT_ALT, KEY_RIGHT_BRACE, 0x0F, 0x0F}
+    {MODIFIERKEY_CTRL,  MODIFIERKEY_ALT, KEY_LEFT_BRACE, Z::FN_WM, Z::FN_LOWER, KEY_SPACE, MODIFIERKEY_SHIFT, Z::FN_RAISE, MODIFIERKEY_RIGHT_ALT, KEY_RIGHT_BRACE, 0x0F, 0x0F}
 };
 
 const Z::Keycode LOWER_LAYER[HEIGHT][FULL_WIDTH] = {
@@ -29,15 +29,15 @@ const Z::Keycode LOWER_LAYER[HEIGHT][FULL_WIDTH] = {
     {KEY_ESC,           KEY_MINUS, KEY_S,  KEY_D, KEY_F, KEY_G, KEY_H, KEY_EQUAL, KEY_LEFT_BRACE,        KEY_RIGHT_BRACE,      KEY_SEMICOLON, KEY_QUOTE},
     {MODIFIERKEY_SHIFT, KEY_NON_US_BS, KEY_Z, KEY_X, KEY_C, KEY_V, KEY_B, KEY_N, KEY_M, KEY_COMMA, KEY_PERIOD, KEY_SLASH},
 
-    {MODIFIERKEY_CTRL,  MODIFIERKEY_ALT, KEY_LEFT_BRACE, Z::FN_WM, Z::FN_LOWER, KEY_SPACE, KEY_BACKSPACE, Z::FN_RAISE, MODIFIERKEY_RIGHT_ALT, KEY_RIGHT_BRACE, 0x0F, 0x0F}
+    {MODIFIERKEY_CTRL,  MODIFIERKEY_ALT, KEY_LEFT_BRACE, Z::FN_WM, Z::FN_LOWER, KEY_SPACE, MODIFIERKEY_SHIFT, Z::FN_RAISE, MODIFIERKEY_RIGHT_ALT, KEY_RIGHT_BRACE, 0x0F, 0x0F}
 };
 
 const Z::Keycode WM_LAYER[HEIGHT][FULL_WIDTH] = {
     {KEY_TILDE,         KEY_1, KEY_2,  KEY_3, KEY_4, KEY_5, KEY_6, KEY_7, KEY_8,        KEY_9,      KEY_0,         KEY_BACKSPACE},
-    {KEY_ESC,           KEY_Q, KEY_S,  KEY_T, KEY_R, KEY_G, KEY_H, KEY_J, KEY_K,        KEY_L,      KEY_SEMICOLON, KEY_QUOTE},
+    {KEY_TAB,           KEY_Q, KEY_S,  KEY_T, KEY_R, KEY_G, KEY_H, KEY_J, KEY_K,        KEY_L,      KEY_SEMICOLON, KEY_ENTER},
     {MODIFIERKEY_SHIFT, KEY_NON_US_BS, KEY_Z, KEY_X, KEY_C, KEY_V, KEY_B, KEY_N, KEY_M, KEY_COMMA, KEY_PERIOD, KEY_SLASH},
 
-    {MODIFIERKEY_CTRL,  MODIFIERKEY_ALT, KEY_LEFT_BRACE, Z::FN_WM, Z::FN_LOWER, KEY_SPACE, KEY_BACKSPACE, Z::FN_RAISE, MODIFIERKEY_RIGHT_ALT, KEY_RIGHT_BRACE, 0x0F, 0x0F}
+    {MODIFIERKEY_CTRL,  MODIFIERKEY_ALT, KEY_LEFT_BRACE, Z::FN_WM, Z::FN_LOWER, KEY_SPACE, MODIFIERKEY_SHIFT, Z::FN_RAISE, MODIFIERKEY_RIGHT_ALT, KEY_RIGHT_BRACE, 0x0F, 0x0F}
 };
 
 
@@ -55,6 +55,10 @@ KeyboardState get_new_state(
     if(pressed_keys.contains_functionkey(Z::FunctionKey::FN_LOWER))
     {
         return KeyboardState::LOWERED;
+    }
+    else if(pressed_keys.contains_functionkey(Z::FunctionKey::FN_RAISE))
+    {
+        return KeyboardState::RAISED;
     }
     else if(pressed_keys.contains_functionkey(Z::FunctionKey::FN_WM))
     {
@@ -82,6 +86,10 @@ Z::Keymap<FULL_WIDTH, HEIGHT> get_current_keymap(KeyboardState state)
         {
             return Z::init_keymap<FULL_WIDTH, HEIGHT>(LOWER_LAYER);
         }
+        case KeyboardState::RAISED:
+        {
+            return Z::init_keymap<FULL_WIDTH, HEIGHT>(LOWER_LAYER);
+        }
         case KeyboardState::WM_LAYER:
         {
             return Z::init_keymap<FULL_WIDTH, HEIGHT>(WM_LAYER);
@@ -102,6 +110,10 @@ uint16_t get_state_modifier(KeyboardState state)
         case KeyboardState::WM_LAYER:
         {
             return MODIFIERKEY_GUI;
+        }
+        case KeyboardState::RAISED:
+        {
+            return MODIFIERKEY_SHIFT;
         }
         default:
             return 0;
