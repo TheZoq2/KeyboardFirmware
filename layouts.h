@@ -13,15 +13,16 @@ enum class KeyboardState
     NORMAL,
     LOWERED,
     RAISED,
-    WM_LAYER
+    WM_LAYER,
+    HARDWARE_VIM
 };
 
 const Z::Keycode DEFAULT_LAYER[HEIGHT][FULL_WIDTH] = {
     {KEY_TAB,           KEY_Q, KEY_W, KEY_E, KEY_R, KEY_T, KEY_Y, KEY_U, KEY_I,        KEY_O,      KEY_P,         KEY_BACKSPACE},
-    {KEY_ESC,           KEY_A, KEY_S, KEY_D, KEY_F, KEY_G, KEY_H, KEY_J, KEY_K,        KEY_L,      KEY_SEMICOLON, KEY_ENTER},
+    {KEY_ESC,         KEY_A, KEY_S, KEY_D, KEY_F, KEY_G, KEY_H, KEY_J, KEY_K,        KEY_L,      KEY_SEMICOLON, KEY_ENTER},
     {MODIFIERKEY_SHIFT, KEY_QUOTE,    KEY_Z, KEY_X, KEY_C, KEY_V, KEY_B, KEY_N, KEY_M, KEY_COMMA, KEY_PERIOD, KEY_SLASH},
 
-    {MODIFIERKEY_CTRL,  MODIFIERKEY_ALT, KEY_LEFT_BRACE, Z::FN_WM, Z::FN_LOWER, KEY_SPACE, MODIFIERKEY_SHIFT, Z::FN_RAISE, MODIFIERKEY_RIGHT_ALT, KEY_RIGHT_BRACE, 0x0F, 0x0F}
+    {MODIFIERKEY_CTRL,  MODIFIERKEY_ALT, KEY_LEFT_BRACE, Z::FN_WM, Z::FN_LOWER, KEY_SPACE, Z::FN_VIM, Z::FN_RAISE, MODIFIERKEY_RIGHT_ALT, KEY_RIGHT_BRACE, 0x0F, 0x0F}
 };
 
 const Z::Keycode LOWER_LAYER[HEIGHT][FULL_WIDTH] = {
@@ -39,6 +40,16 @@ const Z::Keycode WM_LAYER[HEIGHT][FULL_WIDTH] = {
 
     {MODIFIERKEY_CTRL,  MODIFIERKEY_ALT, KEY_LEFT_BRACE, Z::FN_WM, Z::FN_LOWER, KEY_SPACE, MODIFIERKEY_SHIFT, Z::FN_RAISE, MODIFIERKEY_RIGHT_ALT, KEY_RIGHT_BRACE, 0x0F, 0x0F}
 };
+
+
+const Z::Keycode VIM_LAYER[HEIGHT][FULL_WIDTH] = {
+    {KEY_TAB,           KEY_Q,          KEY_W,   KEY_E,         KEY_R,  KEY_T,  KEY_Y,        KEY_PAGE_UP,  KEY_HOME,  KEY_O,      KEY_P,         KEY_BACKSPACE},
+    {KEY_ESC,         KEY_END,        KEY_ESC, KEY_PAGE_DOWN, KEY_F,  KEY_G,  KEY_LEFT,     KEY_DOWN,     KEY_UP,    KEY_RIGHT,  KEY_SEMICOLON, KEY_ENTER},
+    {MODIFIERKEY_SHIFT, KEY_QUOTE,      KEY_Z,   KEY_X,         KEY_C,  KEY_V,  KEY_B,        KEY_N,        KEY_M,     KEY_COMMA,  KEY_PERIOD,    KEY_SLASH},
+
+    {MODIFIERKEY_CTRL,  MODIFIERKEY_ALT, KEY_LEFT_BRACE, Z::FN_WM, Z::FN_LOWER, KEY_SPACE, Z::FN_VIM, Z::FN_RAISE, MODIFIERKEY_RIGHT_ALT, KEY_RIGHT_BRACE, 0x0F, 0x0F}
+};
+
 
 
 /*
@@ -63,6 +74,10 @@ KeyboardState get_new_state(
     else if(pressed_keys.contains_functionkey(Z::FunctionKey::FN_WM))
     {
         return KeyboardState::WM_LAYER;
+    }
+    else if(pressed_keys.contains_functionkey(Z::FunctionKey::FN_VIM))
+    {
+        return KeyboardState::HARDWARE_VIM;
     }
     else
     {
@@ -93,6 +108,10 @@ Z::Keymap<FULL_WIDTH, HEIGHT> get_current_keymap(KeyboardState state)
         case KeyboardState::WM_LAYER:
         {
             return Z::init_keymap<FULL_WIDTH, HEIGHT>(WM_LAYER);
+        }
+        case KeyboardState::HARDWARE_VIM:
+        {
+            return Z::init_keymap<FULL_WIDTH, HEIGHT>(VIM_LAYER);
         }
         default:
             exception("Unimplemented keyboard state");
