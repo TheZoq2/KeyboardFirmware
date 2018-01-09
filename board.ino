@@ -61,7 +61,7 @@ void loop()
     while(true)
     {
         auto self_keys = read_pressed_keys(ROW_PINS, COL_PINS);
-//#define IS_SLAVE
+#define IS_SLAVE
 #ifdef IS_SLAVE
         auto bytes = coords_to_bytes(self_keys);
         send_uart_bytes(bytes);

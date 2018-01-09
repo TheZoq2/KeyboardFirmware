@@ -46,6 +46,7 @@ namespace Z
         FN_LOWER,
         FN_WM,
         FN_VIM,
+        FN_SPECIAL,
         //Helper for getting the amount of modifiers
         FN_AMOUNT
     };
@@ -57,8 +58,7 @@ namespace Z
     /*
      * Maps are stored in a column-row structure to allow
      * [x][y] to be [horizontal][vertical]
-     *
-KEY_PAGE_DOWN* [
+     * KEY_PAGE_DOWN* [
      *   x1:[y1,y2,y3...]
      *   x2:[y1,y2,y3...]
      *   ...
