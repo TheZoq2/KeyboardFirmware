@@ -4,7 +4,7 @@
 #include "keyboard_functional.h"
 #include "constants.h"
 
-const uint16_t READ_DELAY = 5; //microseconds
+const uint16_t READ_DELAY = 25; //microseconds
 
 template<size_t WIDTH, size_t HEIGHT>
 void init_pins(
