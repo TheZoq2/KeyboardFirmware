@@ -1,1 +1,1 @@
-//#define IS_SLAVE
+#define IS_SLAVE

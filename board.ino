@@ -61,7 +61,7 @@ void loop()
 
     while(true)
     {
-        auto self_keys = read_pressed_keys_debounce(ROW_PINS, COL_PINS);
+        auto self_keys = read_pressed_keys(ROW_PINS, COL_PINS);
 #ifdef IS_SLAVE
         auto bytes = coords_to_bytes(self_keys);
         send_uart_bytes(bytes);
@@ -99,6 +99,8 @@ void loop()
         //state_manager.update_current_layer(keytypes);
 
         digitalWrite(ledPin, HIGH);
+
 #endif
+        delayMicroseconds(16000);
     }
 }

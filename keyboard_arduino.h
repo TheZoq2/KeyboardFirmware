@@ -23,31 +23,6 @@ void init_pins(
 }
 
 template<size_t WIDTH, size_t HEIGHT>
-BoundedArray<Z::KeyCoordinate, WIDTH*HEIGHT> read_pressed_keys_debounce(
-        const BoundedArray<uint8_t, HEIGHT> row_pins,
-        const BoundedArray<uint8_t, WIDTH> col_pins
-    )
-{
-    auto initial = read_pressed_keys(row_pins, col_pins);
-    delayMicroseconds(20);
-    auto next = read_pressed_keys(row_pins, col_pins);
-
-    auto result = BoundedArray<Z::KeyCoordinate, WIDTH*HEIGHT>();
-    // Only save the keys that were pressed in both readings
-    auto search_index = 0;
-    for(uint8_t i = 0; i < initial.size(); i++) {
-        if(next.size() <= search_index) {
-            break;
-        }
-        if(initial[i] == next[search_index]) {
-            result.push(initial[i]);
-            search_index++;
-        }
-    }
-    return result;
-}
-
-template<size_t WIDTH, size_t HEIGHT>
 BoundedArray<Z::KeyCoordinate, WIDTH*HEIGHT> read_pressed_keys(
         const BoundedArray<uint8_t, HEIGHT> row_pins,
         const BoundedArray<uint8_t, WIDTH> col_pins
