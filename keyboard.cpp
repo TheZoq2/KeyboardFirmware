@@ -63,7 +63,7 @@ void Z::Board::update()
     bool fnPressed = false;
 
     //Loop through the rows turning them on one by one
-    for(uint8_t i = 0; i < ROW_AMOUNT; ++i)
+    for(uint8_t i = 0; i < 1; ++i)
     {
         //Turn the row on
         digitalWrite(ROW_PINS[i], LOW); //Low because the teensy has a built in pull-up resistor
@@ -99,7 +99,7 @@ void Z::Board::update()
             }
         }
 
-        digitalWrite(ROW_PINS[i], HIGH); //Reset the pin;
+        //digitalWrite(ROW_PINS[i], HIGH); //Reset the pin;
     }
 
     //If the FN key was pressed, we need to remap those keystrokes.
